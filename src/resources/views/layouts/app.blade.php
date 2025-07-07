@@ -1,80 +1,80 @@
-<!doctype html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+<!DOCTYPE html>
+<html lang="ja">
 <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-
-    <!-- CSRF Token -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-
-    <title>{{ config('app.name', 'Laravel') }}</title>
-
-    <!-- Fonts -->
-    <link rel="dns-prefetch" href="//fonts.bunny.net">
-    <link href="https://fonts.bunny.net/css?family=Nunito" rel="stylesheet">
-
-    <!-- Scripts -->
-    @vite(['resources/sass/app.scss', 'resources/js/app.js'])
+    {{-- ページタイトルを子ビューから設定し、デフォルトは'anken01'とする --}}
+    <title>@yield('title', 'anken01')</title>
+    <link rel="stylesheet" href="{{ asset('css/sanitize.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/app.css') }}">
+    {{-- Google Fonts (Inter) は、CSSファイル内で @import するか、ここに残す --}}
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    {{-- 各ページ固有のCSSを挿入するためのプレースホルダ --}}
+    @yield('css')
 </head>
 <body>
-    <div id="app">
-        <nav class="navbar navbar-expand-md navbar-light bg-white shadow-sm">
-            <div class="container">
-                <a class="navbar-brand" href="{{ url('/') }}">
-                    {{ config('app.name', 'Laravel') }}
-                </a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="{{ __('Toggle navigation') }}">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-
-                <div class="collapse navbar-collapse" id="navbarSupportedContent">
-                    <!-- Left Side Of Navbar -->
-                    <ul class="navbar-nav me-auto">
-
-                    </ul>
-
-                    <!-- Right Side Of Navbar -->
-                    <ul class="navbar-nav ms-auto">
-                        <!-- Authentication Links -->
-                        @guest
-                            @if (Route::has('login'))
-                                <li class="nav-item">
-                                    <a class="nav-link" href="{{ route('login') }}">{{ __('Login') }}</a>
-                                </li>
-                            @endif
-
-                            @if (Route::has('register'))
-                                <li class="nav-item">
-                                    <a class="nav-link" href="{{ route('register') }}">{{ __('Register') }}</a>
-                                </li>
-                            @endif
-                        @else
-                            <li class="nav-item dropdown">
-                                <a id="navbarDropdown" class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>
-                                    {{ Auth::user()->name }}
-                                </a>
-
-                                <div class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
-                                    <a class="dropdown-item" href="{{ route('logout') }}"
-                                       onclick="event.preventDefault();
-                                                     document.getElementById('logout-form').submit();">
-                                        {{ __('Logout') }}
-                                    </a>
-
-                                    <form id="logout-form" action="{{ route('logout') }}" method="POST" class="d-none">
-                                        @csrf
-                                    </form>
-                                </div>
-                            </li>
-                        @endguest
-                    </ul>
-                </div>
+    <header class="header">
+        <div class="header__inner">
+            <!-- ロゴ -->
+            <div class="header__logo">
+                <img src="{{ asset('images/logo.svg') }}" alt="ロゴ">
             </div>
-        </nav>
+            @php
+                use Illuminate\Support\Facades\Auth; // Authファサードを使用
+                $currentRouteName = Route::currentRouteName(); // 現在のルート名を取得
+                // ナビゲーションを非表示にする認証関連ルートのリスト
+                $excludedRoutes = [
+                    'register', 'login', 'password.request', 'password.reset', 'password.confirm',
+                    'verification.notice', 'verification.verify', 'verification.resend',
+                    'admin.login', // 管理者ログインも追加
+                ];
+            @endphp
+            {{-- 現在のルートが除外リストに含まれていない場合にナビゲーションを表示 --}}
+            @if (!in_array($currentRouteName, $excludedRoutes))
+                <nav class="header__nav">
+                    <ul class="header__list">
+                        @auth {{-- ユーザーがログインしている場合のみメニューを表示 --}}
+                            @if (Auth::user()->isAdmin()) {{-- 管理者ユーザーの場合 --}}
+                                <!-- 管理者専用画面メニュー -->
+                                <li class="header__list-item">
+                                    <a href="{{ route('admin.dashboard') }}" class="header__form--mypage">勤怠一覧</a>
+                                </li>
+                                <li class="header__list-item">
+                                    <a href="{{ route('admin.staff.list') }}" class="header__form--list">スタッフ一覧</a>
+                                </li>
+                                <li class="header__list-item">
+                                    <a href="{{ route('admin.stamp_correction_request.list') }}" class="header__form--list">申請一覧</a>
+                                </li>
+                            @else {{-- 一般スタッフユーザーの場合 --}}
+                                <!-- スタッフ専用画面メニュー -->
+                                <li class="header__list-item">
+                                    <a href="{{ route('attendance') }}" class="header__form--mypage">勤怠</a>
+                                </li>
+                                <li class="header__list-item">
+                                    <a href="{{ route('attendance.list') }}" class="header__form--list">勤怠一覧</a>
+                                </li>
+                                <li class="header__list-item">
+                                    <a href="{{ route('stamp_correction_request.list') }}" class="header__form--list">申請</a>
+                                </li>
+                            @endif
+                            {{-- ログアウトは管理者とスタッフで共通 --}}
+                            <li class="header__list-item">
+                                <form action="{{ route('logout') }}" method="post">
+                                    @csrf
+                                    <button class="header__form--logout" type="submit">ログアウト</button>
+                                </form>
+                            </li>
+                        @endauth
+                    </ul>
+                </nav>
+            @endif
+        </div>
+    </header>
 
-        <main class="py-4">
-            @yield('content')
-        </main>
-    </div>
+    <main>
+        {{-- 各ページのメインコンテンツを挿入 --}}
+        @yield('content')
+    </main>
 </body>
 </html>

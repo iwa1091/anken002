@@ -1,0 +1,27 @@
+    # Dockerビルドコンテキストのルートにあるvendorディレクトリを除外
+    /vendor/
+
+    # ホストの src ディレクトリ内の vendor ディレクトリを除外
+    # これは `COPY ./src .` が vendor ディレクトリを誤って上書きするのを防ぎます
+    src/vendor/
+
+    # node_modules ディレクトリを除外
+    /node_modules/
+    src/node_modules/
+
+    # 環境設定ファイルを除外 (コンテナ内にコピーされないように)
+    .env
+
+    # その他の無視するファイル
+    .DS_Store
+    .git
+    .gitignore
+    /.idea
+    /public/hot
+    /public/storage
+    /storage/*.bak
+    /storage/logs/*.log
+    /storage/framework/sessions/*
+    /storage/framework/cache/*
+    /storage/framework/views/*
+    

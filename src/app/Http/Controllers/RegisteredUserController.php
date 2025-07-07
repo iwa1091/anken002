@@ -1,19 +1,19 @@
 <?php
 
-namespace App\Http\Controllers; // ここを App\Http\Controllers に修正
+namespace App\Http\Controllers; // 正しいネームスペース
 
 use App\Http\Controllers\Controller;
-use App\Models\User; // Userモデルをインポート
-use App\Models\Role; // Roleモデルをインポートして、デフォルトロールを割り当てる
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Auth\Events\Registered; // ユーザー登録イベントをトリガー
+// use App\Models\User; // storeメソッドを削除するため不要
+// use App\Models\Role; // storeメソッドを削除するため不要
+// use Illuminate\Support\Facades\Hash; // storeメソッドを削除するため不要
+// use Illuminate\Auth\Events\Registered; // storeメソッドを削除するため不要
 
 class RegisteredUserController extends Controller
 {
     /**
      * Display the registration view.
-     * 会員登録ビューを表示します。
+     * 会員登録画面を表示します。
      *
      * @return \Illuminate\View\View
      */
@@ -22,46 +22,24 @@ class RegisteredUserController extends Controller
         return view('auth.register'); // Fortifyのデフォルト登録ビューを表示
     }
 
-    /**
-     * Handle an incoming registration request.
-     * 会員登録リクエストを処理します。
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\RedirectResponse
-     *
-     * @throws \Illuminate\Validation\ValidationException
-     */
-    public function store(Request $request)
-    {
-        // Fortifyの登録パイプラインを呼び出す
-        // 通常、POST /register はFortify内部のCreateNewUserクラスによって処理されます。
-        // ここに直接ロジックを記述する場合、Fortifyのデフォルトの挙動をオーバーライドすることになります。
-        //
-        // 例として、FortifyのCreateNewUserクラスが行う処理を簡略化して示します。
-        // 実際にはFortifyの機能に任せるのが一般的です。
+    // ★★★ store メソッドは削除します。FortifyがPOST /register を処理します。 ★★★
+    // /**
+    //  * Handle an incoming authentication request.
+    //  * 認証リクエストを処理します。
+    //  *
+    //  * @param  \Illuminate\Http\Request  $request
+    //  * @return \Illuminate\Http\RedirectResponse
+    //  * @throws \Illuminate\Validation\ValidationException
+    //  */
+    // public function store(Request $request)
+    // {
+    //     // Fortifyの登録パイプラインを呼び出すため、
+    //     // ここでのバリデーションとUser::createのロジックは不要です。
+    //     // FortifyはCreateNewUserアクションでこれらの処理を行います。
 
-        $request->validate([
-            'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
-            'password' => ['required', 'string', 'min:8', 'confirmed'], // 'confirmed' は password_confirmation が必要
-        ]);
-
-        // デフォルトロールとして'staff'を取得または作成
-        $staffRole = Role::firstOrCreate(['name' => 'staff']);
-
-        $user = User::create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'password' => Hash::make($request->password),
-            'role_id' => $staffRole->id, // 新規登録ユーザーにはデフォルトでstaffロールを付与
-        ]);
-
-        event(new Registered($user)); // Registeredイベントを発火 (メール認証などで使用)
-
-        // 登録後に自動ログインさせる場合 (Fortifyのデフォルトの挙動)
-        // Auth::login($user);
-
-        // 登録後のリダイレクト先 (通常はログインページまたはダッシュボード)
-        return redirect()->route('login')->with('status', '登録が完了しました。ログインしてください。');
-    }
+    //     // 登録後のリダイレクト先のみを制御します。
+    //     // FortifyがMustVerifyEmailインターフェースを検知し、
+    //     // ユーザーが未認証であれば自動的にverification.noticeへリダイレクトします。
+    //     return redirect()->route('verification.notice')->with('status', '登録が完了しました。メールをご確認ください。');
+    // }
 }

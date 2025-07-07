@@ -1,0 +1,126 @@
+/* index.css */
+
+/* ===== 勤怠画面全体のスタイル ===== */
+body {
+
+
+    max-width: 100%;
+    width: 100%;
+    margin: 0 auto;
+    background-color: #f1f0f3;
+    color: #000;
+}
+.attendance-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 80px 20px;
+    background-color: #f1f0f3;
+    min-height: 100vh;
+    box-sizing: border-box;
+}
+
+/* ===== ステータス表示 ===== */
+.status-display p {
+    background-color: #d9d9d9;
+    color: #555;
+    font-weight: bold;
+    font-size: 14px;
+    padding: 6px 16px;
+    border-radius: 16px;
+    margin-bottom: 32px;
+}
+
+/* ===== 日付と時刻の表示 ===== */
+.date-display {
+    text-align: center;
+    margin-bottom: 48px;
+}
+
+.current-date {
+    font-size: 24px;
+    font-weight: 500;
+    margin-bottom: 12px;
+}
+
+.current-time {
+    font-size: 56px;
+    font-weight: 700;
+}
+
+/* ===== スタンプボタン（出勤・退勤・休憩） ===== */
+.stamp-buttons {
+    display: flex;
+    gap: 24px;
+}
+
+.stamp-buttons.single-button {
+    justify-content: center;
+}
+
+.stamp-buttons.two-columns {
+    justify-content: center;
+}
+
+.stamp-button {
+    font-size: 20px;
+    font-weight: 700;
+    padding: 16px 48px;
+    border-radius: 12px;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.checkin-form {
+    background-color: #000;
+    color: #fff;
+}
+
+.stamp-button:hover {
+    opacity: 0.9;
+}
+
+.stamp-form:first-child .stamp-button {
+    background-color: #000;
+    color: #fff;
+    border: none;
+}
+
+.stamp-form:last-child .stamp-button {
+    background-color: #fff;
+    color: #000;
+    border: none;
+}
+
+/* ===== 退勤後メッセージ ===== */
+.message-after-checkout p {
+    font-size: 20px;
+    font-weight: 500;
+    color: #000;
+}
+
+/* ===== レスポンシブ：PC画面(1400〜1540px) ===== */
+@media screen and (min-width: 1400px) and (max-width: 1540px) {
+    .attendance-container {
+        max-width: 960px;
+        margin: 0 auto;
+    }
+
+    .stamp-button {
+        padding: 16px 64px;
+        font-size: 22px;
+    }
+
+    .current-date {
+        font-size: 26px;
+    }
+
+    .current-time {
+        font-size: 60px;
+    }
+
+    .message-after-checkout p {
+        font-size: 22px;
+    }
+}

@@ -18,7 +18,7 @@ return new class extends Migration
                   ->onDelete('cascade');     // If an attendance record is deleted, related break times are also deleted
 
             $table->dateTime('break_start_time')->comment('休憩開始時刻'); // Break start time
-            $table->dateTime('break_end_time')->comment('休憩終了時刻');   // Break end time
+            $table->dateTime('break_end_time')->nullable()->comment('休憩終了時刻');   // Break end time
 
             $table->timestamps(); // Adds created_at and updated_at columns
         });

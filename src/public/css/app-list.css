@@ -1,0 +1,268 @@
+/* app-list.css */
+
+/* 勤怠詳細ページの全体コンテナ */
+.application-list-container {
+    max-width: 960px;
+    margin: 40px auto;
+    padding: 40px;
+    background-color: #fff;
+    border-radius: 12px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+    font-family: 'Inter', sans-serif;
+}
+
+/* タイトル */
+.application-list-title {
+    font-size: 1.75rem;
+    /* 28px */
+    font-weight: bold;
+    color: #1A202C;
+    /* 濃いテキスト色 */
+    margin-bottom: 2rem;
+    position: relative;
+    padding-left: 1.25rem;
+}
+
+.application-list-title::before {
+    content: '';
+    position: absolute;
+    top: 0.5rem;
+    left: 0;
+    width: 6px;
+    height: 1.75rem;
+    background-color: #000000;
+}
+
+/* タブのラッパー */
+.tab-wrapper {
+    margin-bottom: 2rem;
+}
+
+/* ラジオボタンを非表示にする */
+.tab-input {
+    display: none;
+}
+
+/* タブラベルのスタイル */
+.tab-label {
+    display: inline-block;
+    padding: 1rem 1.5rem;
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #718096;
+    /* 非アクティブ時のテキスト色 */
+    cursor: pointer;
+    transition: color 0.3s ease, border-bottom 0.3s ease;
+    position: relative;
+    outline: none;
+    border-bottom: 2px solid transparent;
+    /* デフォルトの下線 */
+    margin-bottom: -2px;
+    /* 下線が重ならないように調整 */
+}
+
+/* タブラベルのホバー効果 */
+.tab-label:hover {
+    color: #4A5568;
+}
+
+/* アクティブなタブのスタイル */
+.tab-input:checked+.tab-label {
+    color: #2C5282;
+    /* アクティブ時のテキスト色 */
+    border-bottom: 3px solid #2C5282;
+    /* アクティブ時の下線 */
+}
+
+/* すべてのタブコンテンツをデフォルトで非表示にする */
+.tab-content {
+    display: none;
+    padding-top: 1rem;
+}
+
+/* チェックされたラジオボタンに対応するタブコンテンツを表示する */
+/* `~` (一般兄弟セレクタ) を使用して、チェックされたinput要素の後に続く特定のtab-contentを表示 */
+#tab-pending:checked~#content-pending,
+#tab-approved:checked~#content-approved {
+    display: block;
+}
+
+/* タブコンテンツ内の見出し */
+.tab-content-heading {
+    font-size: 1.25rem;
+    /* 20px */
+    font-weight: 600;
+    color: #2D3748;
+    margin-bottom: 1.5rem;
+    text-align: center;
+}
+
+.no-applications-message {
+    text-align: center;
+    color: #718096;
+    font-size: 1rem;
+    padding: 2rem 0;
+    border: 1px dashed #E2E8F0;
+    border-radius: 8px;
+    margin-top: 1.5rem;
+}
+
+/* 申請一覧テーブル */
+.application-table-wrapper {
+    overflow-x: auto;
+    /* テーブルがはみ出す場合にスクロールを許可 */
+}
+
+.application-table {
+    width: 100%;
+    border-collapse: separate;
+    /* border-radiusのために */
+    border-spacing: 0;
+    margin-top: 1rem;
+    background-color: #fff;
+    border-radius: 8px;
+    overflow: hidden;
+    /* 角丸を適用するために必要 */
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.application-table thead {
+    background-color: #F7FAFC;
+    /* ヘッダーの背景色 */
+}
+
+.table-header {
+    padding: 1rem 1.25rem;
+    text-align: left;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #4A5568;
+    border-bottom: 1px solid #E2E8F0;
+}
+
+.table-row {
+    transition: background-color 0.2s ease;
+}
+
+.table-row:nth-child(even) {
+    background-color: #FDFDFD;
+    /* 偶数行の背景色 */
+}
+
+.table-row:hover {
+    background-color: #F0F4F8;
+    /* ホバー時の背景色 */
+}
+
+.table-data {
+    padding: 1rem 1.25rem;
+    font-size: 0.95rem;
+    color: #2D3748;
+    border-bottom: 1px solid #E2E8F0;
+}
+
+.table-row:last-child .table-data {
+    border-bottom: none;
+    /* 最後の行の下線はなし */
+}
+
+/* ステータス表示 */
+.status-pending {
+    color: #DD6B20;
+    /* 承認待ちのオレンジ色 */
+    font-weight: 500;
+}
+
+.status-approved {
+    color: #38A169;
+    /* 承認済みの緑色 */
+    font-weight: 500;
+}
+
+/* 詳細ボタン */
+.detail-button {
+    display: inline-block;
+    padding: 0.5rem 1rem;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #fff;
+    background-color: #2C5282;
+    /* ボタンの背景色 */
+    border: none;
+    border-radius: 6px;
+    text-decoration: none;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.1s ease;
+    text-align: center;
+}
+
+.detail-button:hover {
+    background-color: #3182CE;
+    /* ホバー時の色 */
+    transform: translateY(-1px);
+}
+
+.detail-button:active {
+    transform: translateY(0);
+}
+
+/* ========== レスポンシブ対応 ========== */
+@media screen and (max-width: 768px) {
+    .application-list-container {
+        margin: 20px;
+        padding: 20px;
+    }
+
+    .application-list-title {
+        font-size: 1.5rem;
+        text-align: center;
+        padding-left: 0;
+    }
+
+    .application-list-title::before {
+        display: none;
+        /* モバイルでは縦線を非表示に */
+    }
+
+    .tab-label {
+        font-size: 1rem;
+        padding: 0.8rem 1rem;
+        width: 48%;
+        /* 2つ並べるために調整 */
+        text-align: center;
+        margin-bottom: 0.5rem;
+        /* 縦に並んだ際の隙間 */
+    }
+
+    .tab-wrapper {
+        display: flex;
+        flex-wrap: wrap;
+        /* 折り返しを許可 */
+        justify-content: center;
+        border-bottom: 2px solid #E2E8F0;
+        /* タブの下線 */
+    }
+
+    .tab-content-heading {
+        font-size: 1.1rem;
+        margin-top: 1rem;
+    }
+
+    .application-table-wrapper {
+        width: 100%;
+        overflow-x: auto;
+        /* 必要に応じて横スクロール */
+    }
+
+    .application-table,
+    .table-header,
+    .table-data {
+        font-size: 0.85rem;
+        padding: 0.8rem 1rem;
+    }
+
+    .detail-button {
+        padding: 0.4rem 0.8rem;
+        font-size: 0.75rem;
+    }
+}

@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Models\CorrectionRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth; // 認証ユーザーのIDを取得するために使用
+use Illuminate\Support\Facades\DB; // トランザクション用
+use App\Http\Requests\CorrectionRequestStoreRequest; // 新しく作成するForm Request
 
 class ApplicationController extends Controller
 {
@@ -22,12 +24,20 @@ class ApplicationController extends Controller
 
         // ログイン中のユーザーが提出した修正申請のみを取得し、ページネーション
         // 最新の申請が上に来るように降順でソート
-        $correctionRequests = CorrectionRequest::where('user_id', $userId)
+        // 承認待ちの申請を取得
+        $pendingApplications = CorrectionRequest::where('user_id', $userId)
+            ->where('status', 'pending') // ステータスが 'pending' のものを取得
             ->orderBy('created_at', 'desc')
-            ->paginate(10); // 1ページあたり10件表示
+            ->get(); // ページネーションではなく、全て取得するように変更
+
+        // 承認済みの申請を取得
+        $approvedApplications = CorrectionRequest::where('user_id', $userId)
+            ->where('status', 'approved') // ステータスが 'approved' のものを取得
+            ->orderBy('created_at', 'desc')
+            ->get(); // ページネーションではなく、全て取得するように変更
 
         // 申請一覧ビューを返す
-        return view('application.list', compact('correctionRequests'));
+        return view('application.list', compact('pendingApplications', 'approvedApplications'));
     }
 
     /**
@@ -51,5 +61,58 @@ class ApplicationController extends Controller
 
         // 申請詳細ビューを返す
         return view('application.detail', compact('correctionRequest'));
+    }
+
+    /**
+     * Store a newly created correction request in storage.
+     * 新しい勤怠修正申請を保存します。（FN030 修正申請機能）
+     *
+     * @param  \App\Http\Requests\CorrectionRequestStoreRequest  $request  バリデーション済みのリクエスト
+     * @param  int  $attendance_id  対象の勤怠ID
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function storeCorrectionRequest(CorrectionRequestStoreRequest $request, int $attendance_id)
+    {
+        // ログイン中のユーザーIDを取得
+        $userId = Auth::id();
+
+        // 既に同じ勤怠IDで承認待ちの申請が存在するかチェック (FN030の要件には明記されていませんが、二重申請防止のために必要であれば追加)
+        $existingPendingRequest = CorrectionRequest::where('attendance_id', $attendance_id)
+            ->where('user_id', $userId)
+            ->where('status', 'pending')
+            ->first();
+
+        if ($existingPendingRequest) {
+            // 既に承認待ちの申請がある場合、エラーメッセージと共にリダイレクト
+            return back()->withErrors(['application_error' => 'この勤怠には既に承認待ちの修正申請があります。'])
+                         ->withInput();
+        }
+
+        try {
+            DB::transaction(function () use ($request, $attendance_id, $userId) {
+                // 休憩詳細が配列の場合、JSON形式に変換して保存
+                $requestedBreakDetails = $request->input('requested_break_details') ? json_encode($request->input('requested_break_details')) : null;
+
+                CorrectionRequest::create([
+                    'user_id' => $userId,
+                    'attendance_id' => $attendance_id,
+                    'requested_checkin_time' => $request->input('requested_checkin_time'),
+                    'requested_checkout_time' => $request->input('requested_checkout_time'),
+                    'requested_break_details' => $requestedBreakDetails,
+                    'remarks' => $request->input('remarks'),
+                    'status' => 'pending', // 承認待ち
+                ]);
+            });
+
+            // 修正申請が成功した場合
+            return redirect()->route('stamp_correction_request.list')->with('success', '修正申請を提出しました。');
+
+        } catch (\Exception $e) {
+            // エラーハンドリング
+            // ログにエラーを記録することも推奨されます
+            // \Log::error('Failed to store correction request: ' . $e->getMessage(), ['attendance_id' => $attendance_id, 'user_id' => $userId]);
+            return back()->withErrors(['application_error' => '修正申請の提出に失敗しました。時間をおいて再度お試しください。'])
+                         ->withInput();
+        }
     }
 }

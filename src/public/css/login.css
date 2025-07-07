@@ -1,0 +1,100 @@
+/* ===== ログイン画面（login.blade.php）用スタイル ===== */
+
+.login-container {
+    background-color: #fff;
+    padding: 60px 20px;
+    max-width: 400px;
+    width: 100%;
+    margin: 0 auto;
+    text-align: center;
+}
+
+.login-header {
+    margin-bottom: 32px;
+}
+
+.login-title {
+    font-size: 24px;
+    font-weight: bold;
+    color: #000;
+}
+
+/* ===== フォームフィールド ===== */
+.login-form {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.form-group {
+    text-align: left;
+}
+
+.form-label {
+    display: block;
+    font-weight: bold;
+    font-size: 14px;
+    margin-bottom: 8px;
+    color: #000;
+}
+
+.form-input {
+    width: 100%;
+    padding: 12px;
+    font-size: 14px;
+    border: 1px solid #000;
+    border-radius: 4px;
+    background-color: #fff;
+    box-sizing: border-box;
+}
+
+.form-input--error {
+    border-color: red;
+    background-color: #ffe6e6;
+}
+
+.error-message {
+    font-size: 13px;
+    color: red;
+    margin-top: 4px;
+}
+
+/* ===== ログインボタン ===== */
+.login-button-container {
+    margin-top: 8px;
+}
+
+.login-button {
+    width: 100%;
+    background-color: #000;
+    color: #fff;
+    font-weight: bold;
+    font-size: 16px;
+    padding: 14px 0;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: opacity 0.3s;
+}
+
+.login-button:hover {
+    opacity: 0.8;
+}
+
+/* ===== 会員登録リンク ===== */
+.register-link-container {
+    margin-top: 16px;
+}
+
+.register-text {
+    font-size: 14px;
+}
+
+.register-link {
+    color: #007bff;
+    font-size: 14px;
+}
+
+.register-link:hover {
+    text-decoration: underline;
+}

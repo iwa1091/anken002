@@ -1,0 +1,170 @@
+/* 勤怠詳細ページの全体コンテナ */
+.detail-container {
+    max-width: 960px;
+    margin: 40px auto;
+    padding: 40px;
+    background-color: #fff;
+    border-radius: 12px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+    font-family: 'Inter', sans-serif;
+}
+
+/* タイトル */
+.detail-container h2 {
+    font-size: 1.75rem;
+    font-weight: bold;
+    color: #111;
+    margin-bottom: 2rem;
+    position: relative;
+    padding-left: 1rem;
+}
+
+.detail-container h2::before {
+    content: '';
+    position: absolute;
+    top: 8px;
+    left: 0;
+    width: 6px;
+    height: 24px;
+    background-color: #000;
+}
+
+/* 情報ヘッダー（名前・日付） */
+.info-header {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-bottom: 2rem;
+    font-size: 1.1rem;
+}
+
+.info-label {
+    margin-right: 12px;
+    min-width: 60px;
+    display: inline-block;
+}
+
+.info-row {
+    display: flex;
+    align-items: center;
+    font-weight: 500;
+    color: #333;
+}
+
+.info-value {
+    color: #000;
+}
+
+/* フォーム */
+.correction-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+/* ラベルとグループ */
+.form-group {
+    display: flex;
+    align-items: center;
+    margin-bottom: 16px;
+    gap: 12px;
+}
+
+.form-label {
+    min-width: 100px;
+    font-weight: 500;
+    color: #444;
+    font-size: 1rem;
+    text-align: left;
+}
+
+/* 入力欄 */
+input[type="time"],
+textarea {
+    padding: 8px 12px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-size: 1rem;
+    flex: 1;
+    max-width: 200px;
+}
+
+/* 休憩時間ブロック */
+.breaks-container {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.break-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+/* テキストエリア */
+textarea {
+    max-width: 100%;
+    width: 60%;
+    min-height: 80px;
+}
+
+/* エラーメッセージ */
+.error-message {
+    color: #e53e3e;
+    font-size: 0.85rem;
+    margin-top: 0.25rem;
+}
+
+/* 修正ボタン */
+.submit-button {
+    align-self: flex-end;
+    padding: 12px 28px;
+    font-size: 1rem;
+    font-weight: bold;
+    color: #fff;
+    background-color: #000;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.submit-button:hover {
+    background-color: #333;
+}
+
+/* 修正不可メッセージ */
+.restricted-message {
+    color: #f56565;
+    font-size: 0.95rem;
+    margin-top: 1.5rem;
+    text-align: center;
+}
+
+/* ========== レスポンシブ：1400px〜1540px対応 ========== */
+@media screen and (min-width: 1400px) and (max-width: 1540px) {
+    .detail-container {
+        padding: 60px 40px;
+        margin: 60px auto;
+    }
+
+    .info-header {
+        font-size: 1.25rem;
+    }
+
+    .form-label {
+        font-size: 1rem;
+    }
+
+    input[type="time"],
+    textarea {
+        font-size: 1rem;
+        padding: 10px 14px;
+    }
+
+    .submit-button {
+        font-size: 1.05rem;
+        padding: 14px 32px;
+    }
+}

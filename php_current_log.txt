@@ -1,0 +1,2 @@
+php-1  | [27-Jun-2025 22:06:53] NOTICE: fpm is running, pid 1
+php-1  | [27-Jun-2025 22:06:53] NOTICE: ready to handle connections

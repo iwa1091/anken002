@@ -1,8 +1,11 @@
+# docker/php/Dockerfile
+
+# ベースイメージとして PHP-FPM (FastCGI Process Manager) を使用
 FROM php:8.3-fpm
 
-# 必要なパッケージをインストール
-RUN apt update \
-    && apt install -y --no-install-recommends \
+# 必要なシステムパッケージと PHP 拡張機能をインストール
+# 全てのインストールと設定を単一のRUNコマンドにまとめ、行継続の問題を回避
+RUN apt update && apt install -y --no-install-recommends \
     build-essential \
     libzip-dev \
     unzip \
@@ -17,33 +20,24 @@ RUN apt update \
     git \
     curl \
     && docker-php-ext-configure gd --with-freetype --with-jpeg --with-webp \
-    && docker-php-ext-install -j$(nproc) pdo_mysql opcache bcmath gd exif pcntl intl zip \
+    && docker-php-ext-install -j$(nproc) pdo_mysql opcache bcmath gd exif pcntl intl zip xml \
     && pecl install imagick \
     && docker-php-ext-enable imagick \
     && apt clean \
     && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* /usr/share/doc/*
 
-# Composerのインストール (マルチステージビルド推奨)
-COPY --from=composer:latest /usr/bin/composer /usr/local/bin/composer
+# Composer をインストール (バイナリのみ)
+COPY --from=composer:2.7.2 /usr/bin/composer /usr/local/bin/composer
 
-# アプリケーションのコードをコンテナ内にコピー
-# docker-compose.yml の volumes: - ./src:/var/www/ に合わせる
-WORKDIR /var/www
-COPY ./src /var/www  
+# アプリケーションの作業ディレクトリを設定
+WORKDIR /var/www/html
 
-# Composerの依存関係をインストール
-# Laravelプロジェクトには必須です
-RUN composer install --no-dev --optimize-autoloader --no-interaction
+# これらのディレクトリはボリュームマウントされるホストから提供されるため、
+# Dockerfileでパーミッションを設定する必要はありません。
+# RUN chmod -R 777 storage bootstrap/cache の行は削除しました
 
-# ストレージディレクトリのパーミッション設定
-# Laravelが書き込みを行うために必要です
-RUN chmod -R 777 storage bootstrap/cache
-
-# PHPの設定ファイルをコピー (docker-compose.ymlのマウントパスに合わせる)
+# カスタム PHP 設定ファイルをコピー
 COPY docker/php/php.ini /usr/local/etc/php/conf.d/custom.ini
 
-# コンテナがリッスンするポート
-EXPOSE 9000
-
-# コンテナ起動時にPHP-FPMを実行します
+# コンテナ起動時に PHP-FPM が自動的に実行されるように設定 (デフォルトの動作)
 CMD ["php-fpm"]

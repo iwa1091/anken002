@@ -30,7 +30,9 @@ class CorrectionRequestStoreRequest extends FormRequest
         return [
             'type' => ['required', 'string', 'max:50', 'in:打刻ミス,休憩時間修正,出勤日修正,退勤日修正,その他'], // 修正の種類
             'requested_check_in_time' => ['nullable', 'string', 'date_format:H:i'], // 修正希望の出勤時刻 (H:i形式)
-            'requested_check_out_time' => ['nullable', 'string', 'date_format:H:i', 'after:requested_check_in_time_if_present'], // 修正希望の退勤時刻 (H:i形式)
+            // ↓↓↓ ここを修正しました ↓↓↓
+            'requested_check_out_time' => ['nullable', 'string', 'date_format:H:i', 'after:requested_check_in_time'], // 修正希望の退勤時刻 (H:i形式)
+            // ↑↑↑ ここを修正しました ↑↑↑
             'requested_breaks' => ['nullable', 'array'], // 修正希望の休憩情報（配列形式で受け取る）
             'requested_breaks.*.start' => ['required_with:requested_breaks', 'string', 'date_format:H:i'], // 各休憩開始時刻
             'requested_breaks.*.end' => ['required_with:requested_breaks', 'string', 'date_format:H:i', 'after:requested_breaks.*.start'], // 各休憩終了時刻

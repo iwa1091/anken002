@@ -1,0 +1,54 @@
+.verify-email-container {
+    background-color: #fff;
+    padding: 40px 30px;
+    border-radius: 8px;
+    width: 100%;
+    box-sizing: border-box;
+    text-align: center;
+}
+
+.verify-email-header {
+    margin-bottom: 24px;
+}
+
+.verify-email-description {
+    font-size: 14px;
+    font-weight: bold;
+    color: #444;
+}
+
+.verify-email-actions {
+    margin-top: 24px;
+}
+
+.verify-email-resend-button {
+    margin-top: 12px;
+    font-size: 14px;
+    color: #007BFF;
+    background-color: #ffffff;
+    transition: opacity 0.3s;
+    text-decoration: none;
+    border: none;
+}
+
+.verify-email-resend-button:hover {
+    opacity: 0.8;
+}
+
+/* リンクボタン */
+.verify-email-container a {
+    background-color: #D9D9D9;
+    border: 1px solid #000;
+    color: #000000;
+    padding: 12px 20px;
+    font-weight: bold;
+    font-size: 14px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: opacity 0.3s;
+    display: inline-block;
+}
+
+.verify-email-container a:hover {
+    opacity: 0.7;
+}
