@@ -1,0 +1,313 @@
+/* /home/ri309/anken02/src/public/css/admin-list.css */
+
+body {
+    background-color: #f3f4f6;
+    /* Tailwind's gray-100 */
+    font-family: 'Inter', sans-serif;
+    color: #333;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 40px auto;
+    padding: 20px;
+    background-color: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
+}
+
+.page-title {
+    font-size: 2rem;
+    /* text-4xl */
+    font-weight: 700;
+    /* font-bold */
+    color: #1a202c;
+    /* gray-900 */
+    margin-bottom: 30px;
+    text-align: center;
+}
+
+/* 検索・フィルターセクション */
+.search-filter-section {
+    background-color: #f9fafb;
+    /* gray-50 */
+    border: 1px solid #e2e8f0;
+    /* gray-200 */
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 30px;
+}
+
+.search-form {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    align-items: flex-end;
+}
+
+.search-form .form-group {
+    flex: 1;
+    min-width: 200px;
+    margin-bottom: 0;
+    /* 親要素でgapを設定するため */
+}
+
+.search-form label {
+    display: block;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: #4a5568;
+    margin-bottom: 5px;
+}
+
+.search-form input[type="text"],
+.search-form input[type="date"] {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #cbd5e0;
+    /* gray-300 */
+    border-radius: 6px;
+    font-size: 1rem;
+    box-sizing: border-box;
+}
+
+.search-button,
+.clear-button {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 6px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s, box-shadow 0.2s;
+}
+
+.search-button {
+    background-color: #4299e1;
+    /* blue-500 */
+    color: #ffffff;
+}
+
+.search-button:hover {
+    background-color: #3182ce;
+    /* blue-600 */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.clear-button {
+    background-color: #a0aec0;
+    /* gray-400 */
+    color: #ffffff;
+    text-decoration: none;
+    /* aタグの場合 */
+    display: inline-block;
+    /* aタグの場合 */
+    text-align: center;
+}
+
+.clear-button:hover {
+    background-color: #718096;
+    /* gray-500 */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* テーブルスタイル */
+.table-responsive {
+    overflow-x: auto;
+    /* 小さい画面で横スクロールを可能にする */
+    margin-bottom: 20px;
+}
+
+.attendance-table {
+    width: 100%;
+    border-collapse: collapse;
+    background-color: #ffffff;
+    border-radius: 8px;
+    overflow: hidden;
+    /* 角丸を適用するため */
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.attendance-table th,
+.attendance-table td {
+    padding: 12px 15px;
+    text-align: left;
+    border-bottom: 1px solid #edf2f7;
+    /* gray-200 */
+}
+
+.attendance-table th {
+    background-color: #e2e8f0;
+    /* gray-200 */
+    font-weight: 600;
+    color: #2d3748;
+    /* gray-800 */
+    text-transform: uppercase;
+    font-size: 0.875rem;
+}
+
+.attendance-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.attendance-table tbody tr:hover {
+    background-color: #f7fafc;
+    /* gray-50 */
+}
+
+/* ステータスバッジ */
+.status-approved {
+    background-color: #9ae6b4;
+    /* green-200 */
+    color: #276749;
+    /* green-800 */
+    padding: 4px 8px;
+    border-radius: 9999px;
+    /* full rounded */
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.status-pending {
+    background-color: #fbd38d;
+    /* orange-200 */
+    color: #975a16;
+    /* orange-800 */
+    padding: 4px 8px;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.status-rejected {
+    background-color: #feb2b2;
+    /* red-200 */
+    color: #9b2c2c;
+    /* red-800 */
+    padding: 4px 8px;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+/* 操作ボタン */
+.action-button {
+    padding: 6px 12px;
+    border: none;
+    border-radius: 6px;
+    font-size: 0.875rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.2s, box-shadow 0.2s;
+    text-decoration: none;
+    display: inline-block;
+    margin-right: 5px;
+}
+
+.edit-button {
+    background-color: #63b3ed;
+    /* blue-300 */
+    color: #ffffff;
+}
+
+.edit-button:hover {
+    background-color: #4299e1;
+    /* blue-500 */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.delete-button {
+    background-color: #fc8181;
+    /* red-300 */
+    color: #ffffff;
+}
+
+.delete-button:hover {
+    background-color: #e53e3e;
+    /* red-600 */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.no-data {
+    text-align: center;
+    padding: 20px;
+    color: #718096;
+    /* gray-500 */
+}
+
+/* ページネーション */
+.pagination-links nav {
+    display: flex;
+    justify-content: center;
+    margin-top: 20px;
+}
+
+.pagination-links nav .flex.justify-between.flex-1 {
+    display: none;
+    /* Laravelデフォルトの「Previous」「Next」ボタンを非表示にする場合 */
+}
+
+.pagination-links nav .hidden.sm\:flex-1.sm\:flex.sm\:items-center.sm\:justify-between {
+    display: flex;
+    justify-content: center;
+    width: 100%;
+}
+
+.pagination-links nav .relative.inline-flex.items-center.px-4.py-2 {
+    border: 1px solid #cbd5e0;
+    /* gray-300 */
+    border-radius: 6px;
+    margin: 0 4px;
+    color: #4a5568;
+    /* gray-700 */
+    text-decoration: none;
+    transition: background-color 0.2s, color 0.2s;
+}
+
+.pagination-links nav .relative.inline-flex.items-center.px-4.py-2:hover {
+    background-color: #edf2f7;
+    /* gray-100 */
+}
+
+.pagination-links nav .relative.inline-flex.items-center.px-4.py-2.bg-blue-500 {
+    background-color: #4299e1;
+    /* blue-500 */
+    color: #ffffff;
+    border-color: #4299e1;
+}
+
+.pagination-links nav .relative.inline-flex.items-center.px-4.py-2.bg-blue-500:hover {
+    background-color: #4299e1;
+    /* ホバーしても色を変えない */
+    color: #ffffff;
+}
+
+.pagination-links nav .relative.inline-flex.items-center.px-4.py-2.text-gray-500.cursor-default {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+/* レスポンシブ対応 */
+@media (max-width: 768px) {
+    .search-form {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .search-form .form-group {
+        min-width: unset;
+        width: 100%;
+    }
+
+    .search-button,
+    .clear-button {
+        width: 100%;
+        margin-top: 10px;
+    }
+
+    .attendance-table th,
+    .attendance-table td {
+        padding: 8px 10px;
+        font-size: 0.875rem;
+    }
+}

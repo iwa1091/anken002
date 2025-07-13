@@ -40,6 +40,12 @@ return [
             'driver' => 'session',
             'provider' => 'users',
         ],
+        // ★ここから追加★
+        'admin' => [ // 管理者用ガード
+            'driver' => 'session',
+            'provider' => 'admins', // 管理者モデルに対応するプロバイダ名を指定
+        ],
+        // ★ここまで追加★
     ],
 
     /*
@@ -64,6 +70,12 @@ return [
             'driver' => 'eloquent',
             'model' => App\Models\User::class,
         ],
+        // ★ここから追加★
+        'admins' => [ // 管理者用プロバイダ（adminsガードで指定した名前と同じに）
+            'driver' => 'eloquent',
+            'model' => App\Models\Admin::class, // あなたの管理者モデルのクラスパス
+        ],
+        // ★ここまで追加★
 
         // 'users' => [
         //     'driver' => 'database',
@@ -97,6 +109,14 @@ return [
             'expire' => 60,
             'throttle' => 60,
         ],
+        // ★ここから追加 (任意だが、管理者用のパスワードリセット機能が必要な場合)★
+        'admins' => [ // 管理者用のパスワードリセット設定
+            'provider' => 'admins', // 管理者プロバイダを指定
+            'table' => 'password_reset_tokens', // 必要に応じて 'admin_password_reset_tokens' などにすることも可能
+            'expire' => 60,
+            'throttle' => 60,
+        ],
+        // ★ここまで追加★
     ],
 
     /*

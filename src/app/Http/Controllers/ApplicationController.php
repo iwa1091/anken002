@@ -76,7 +76,7 @@ class ApplicationController extends Controller
         // ログイン中のユーザーIDを取得
         $userId = Auth::id();
 
-        // 既に同じ勤怠IDで承認待ちの申請が存在するかチェック (FN030の要件には明記されていませんが、二重申請防止のために必要であれば追加)
+        // 既に同じ勤怠IDで承認待ちの申請が存在するかチェック
         $existingPendingRequest = CorrectionRequest::where('attendance_id', $attendance_id)
             ->where('user_id', $userId)
             ->where('status', 'pending')
@@ -90,24 +90,24 @@ class ApplicationController extends Controller
 
         try {
             DB::transaction(function () use ($request, $attendance_id, $userId) {
-                // 休憩詳細が配列の場合、JSON形式に変換して保存
-                $requestedBreakDetails = $request->input('requested_break_details') ? json_encode($request->input('requested_break_details')) : null;
-
+                // モデルの$castsで自動的に処理されるため、json_encodeは不要
+                // また、カラム名を'requested_breaks'、タイムカラム、理由カラムをモデルに合わせて修正
                 CorrectionRequest::create([
                     'user_id' => $userId,
                     'attendance_id' => $attendance_id,
-                    'requested_checkin_time' => $request->input('requested_checkin_time'),
-                    'requested_checkout_time' => $request->input('requested_checkout_time'),
-                    'requested_break_details' => $requestedBreakDetails,
-                    'remarks' => $request->input('remarks'),
+                    'requested_check_in_time' => $request->input('requested_check_in_time'),
+                    'requested_check_out_time' => $request->input('requested_check_out_time'),
+                    'requested_breaks' => $request->input('requested_breaks'), // カラム名を修正し、json_encodeを削除
+                    'reason' => $request->input('reason'), // カラム名を修正
                     'status' => 'pending', // 承認待ち
+                    'type' => 'attendance_correction', // ★★★ この行を追加しました ★★★
                 ]);
             });
-
             // 修正申請が成功した場合
             return redirect()->route('stamp_correction_request.list')->with('success', '修正申請を提出しました。');
 
         } catch (\Exception $e) {
+            // dd('Caught exception: ' . $e->getMessage()); // ★★★ 修正が完了したらこの行はコメントアウトまたは削除してください ★★★
             // エラーハンドリング
             // ログにエラーを記録することも推奨されます
             // \Log::error('Failed to store correction request: ' . $e->getMessage(), ['attendance_id' => $attendance_id, 'user_id' => $userId]);

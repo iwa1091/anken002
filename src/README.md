@@ -3,9 +3,11 @@ Laravel Docker Compose 開発環境
 このプロジェクトは、LaravelアプリケーションをDocker Composeで構築するためのテンプレートです。開発環境の迅速な立ち上げを目的としています。特に、APP_KEY の設定やファイルパーミッションなど、一般的なDocker環境で発生しやすい問題を回避するための詳細な手順が含まれています。
 
 前提条件
-このプロジェクトをセットアップする前に、以下のソフトウェアがシステムにインストールされていることを確認してください。
+このプロジェクトをセットアップする前に、以下のソフトウェアがシステムにインストールされ、動作していることを確認してください。
 
-Docker Desktop (またはDocker EngineとDocker Compose)
+Docker Desktop (またはDocker EngineとDocker Compose):
+
+Macユーザーの場合: Docker Desktop for Macをインストールし、アプリケーションを起動してDockerエンジンが実行されている状態にしてください。
 
 Git
 
@@ -18,16 +20,16 @@ LaravelアプリケーションをDocker環境で起動するために、以下�
 まず、リポジトリをローカルにクローンし、プロジェクトのルートディレクトリに移動します。
 
 git clone <あなたのリポジトリのURL> anken02
-cd anken02/ # プロジェクトのルートディレクトリに移動
+cd anken02/ # プロジェクトのルートディレクトリ（docker-compose.ymlがある場所）に移動
 
 2. .envファイルの準備とAPP_KEYの生成
 .env ファイルを作成し、アプリケーションキーを生成します。この手順は、Docker環境特有のパーミッション問題を回避するために、ホスト側から一時的にPHPコンテナを利用して行います。
 
-プロジェクトルートディレクトリ (/home/ri309/anken02/) で実行:
+プロジェクトルートディレクトリ (anken02/) で実行:
 
 # srcディレクトリに移動してクリーンアップ
 cd src/
-sudo rm -rf vendor/ # ホスト側の既存のvendorディレクトリを強制削除
+sudo rm -rf vendor/ || true # ホスト側の既存のvendorディレクトリを強制削除 (存在しない場合はエラーにしない)
 rm -f composer.lock # ホスト側の既存のcomposer.lockファイルを削除
 rm -f .env # 既存の.envファイルを削除
 
@@ -41,17 +43,17 @@ fi
 
 # 一時的にPHPコンテナを起動してAPP_KEYを生成
 # (生成後、自動的にPHPコンテナは停止します)
-cd ../ # プロジェクトルートに戻る
-docker-compose -f /home/ri309/anken02/docker-compose.yml up -d php > /dev/null 2>&1 # phpサービスのみ起動（サイレント）
+cd ../ # プロジェクトルートに戻る (docker-compose.ymlがあるディレクトリ)
+docker-compose up -d php > /dev/null 2>&1 # phpサービスのみ起動（サイレント）
 sleep 5 # コンテナが起動するまで数秒待つ
 NEW_APP_KEY=$(docker-compose exec php php -r 'echo base64_encode(random_bytes(32));')
-docker-compose -f /home/ri309/anken02/docker-compose.yml stop php > /dev/null 2>&1
+docker-compose stop php > /dev/null 2>&1
 
 # 生成したAPP_KEYをsrc/.envファイルに挿入/置換
 cd src/ # srcディレクトリに戻る
 ESCAPED_NEW_APP_KEY=$(printf %s "$NEW_APP_KEY" | sed -e 's/[\/&]/\\&/g')
-sed -i "/^APP_KEY=/d" .env # 既存のAPP_KEY行を削除
-sed -i "/^APP_URL=/a APP_KEY=${ESCAPED_NEW_APP_KEY}" .env # APP_URLの直後に新しいAPP_KEYを挿入
+sed -i "" -e "/^APP_KEY=/d" .env # macOSの場合、sed -i "" -e が必要
+sed -i "" -e "/^APP_URL=/a APP_KEY=${ESCAPED_NEW_APP_KEY}" .env # macOSの場合、sed -i "" -e が必要
 
 echo "--- .env content on host (確認用) ---"
 cat .env | grep APP_KEY # APP_KEYが設定されたことを確認
@@ -65,17 +67,19 @@ sudo chmod -R g+w vendor/ || true # vendorがまだ存在しない場合もエ�
 sudo chmod -R g+w storage/ || true # storageにグループ書き込み権限を付与
 sudo chmod -R g+w bootstrap/cache/ || true # bootstrap/cacheにグループ書き込み権限を付与
 
+Macユーザーへの補足: sed -i コマンドは、LinuxとmacOSで挙動が異なります。macOSでは-iの後に空の文字列（""）を置く必要があります。上記のコードではそのように修正しています。
+
 3. ホスト側でのComposer依存関係のインストール
 プロジェクトの依存関係をホスト側でインストールし、vendor ディレクトリを生成します。これにより、Dockerコンテナ内でのComposer実行時のパーミッション問題を回避します。
 
-src ディレクトリ (/home/ri309/anken02/src/) で実行:
+src ディレクトリ (anken02/src/) で実行:
 
 COMPOSER_MEMORY_LIMIT=-1 composer install --no-dev --optimize-autoloader --no-interaction --ignore-platform-reqs
 
 4. Dockerコンテナのビルド
 docker/php/Dockerfile や app/Http/Kernel.php の変更を反映させるために、PHPコンテナをビルドします。
 
-プロジェクトルートディレクトリ (/home/ri309/anken02/) で実行:
+プロジェクトルートディレクトリ (anken02/) で実行:
 
 cd ../ # srcディレクトリからプロジェクトルートに戻る (もしsrcにいる場合)
 docker-compose build php
@@ -83,14 +87,14 @@ docker-compose build php
 5. Dockerコンテナの起動
 全てのDockerコンテナ（nginx, php, mysql, phpmyadmin, mailhog）を起動します。
 
-プロジェクトルートディレクトリ (/home/ri309/anken02/) で実行:
+プロジェクトルートディレクトリ (anken02/) で実行:
 
 docker-compose up -d
 
 6. コンテナ内部でのLaravel初期設定とパーミッション調整
 LaravelアプリケーションがDockerコンテナ内で正しく動作するための最終設定とパーミッション調整を行います。特に、storage と bootstrap/cache のパーミッションを調整し、Laravel のコマンドを安全に実行します。
 
-プロジェクトルートディレクトリ (/home/ri309/anken02/) で実行:
+プロジェクトルートディレクトリ (anken02/) で実行:
 
 docker-compose exec php bash -c '
     set -e; # コマンドが失敗した場合、即座に終了
@@ -147,7 +151,7 @@ docker-compose exec php bash -c '
 7. PHPコンテナの強制再作成
 コンテナ内部での設定が確実にPHPプロセスに反映されるように、PHPコンテナを強制的に再作成します。
 
-プロジェクトルートディレクトリ (/home/ri309/anken02/) で実行:
+プロジェクトルートディレクトリ (anken02/) で実行:
 
 docker-compose up -d --force-recreate php
 
@@ -172,8 +176,7 @@ MailHog: http://localhost:8025/
 上記の手順「2. .envファイルの準備とAPP_KEYの生成」でのホスト側のパーミッション調整と、「6. コンテナ内部でのLaravel初期設定とパーミッション調整」でのコンテナ内のパーミッション調整（特に chown -R www-data:www-data と chmod -R 777 の部分）が正しく適用されているか確認してください。
 
 ReflectionException または Class "Illuminate\Foundation\Http\Middleware\PreventRequestsDuringMaintenance" does not exist
-このプロジェクトはLaravel 10を使用しており、このミドルウェアクラスはLaravel 10で削除されています。
-app/Http/Kernel.php ファイルを開き、protected $middleware 配列から以下の行を削除していることを確認してください。
+このプロジェクトはLaravel 10を使用しており、このミドルウェアクラスはLaravel 10で削除されています。app/Http/Kernel.php ファイルを開き、protected $middleware 配列から以下の行を削除していることを確認してください。
 
 \Illuminate\Foundation\Http\Middleware\PreventRequestsDuringMaintenance::class,
 

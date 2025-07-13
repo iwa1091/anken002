@@ -33,23 +33,30 @@
                     <table class="application-table">
                         <thead>
                             <tr>
-                                <th class="table-header">日付</th>
-                                <th class="table-header">申請種別</th>
-                                <th class="table-header">ステータス</th>
+                                <th class="table-header">状態</th>
+                                <th class="table-header">名前</th>
+                                <th class="table-header">対象日時</th>
+                                <th class="table-header">申請理由</th>
+                                <th class="table-header">申請日時</th> {{-- 申請日時ヘッダー --}}
                                 <th class="table-header">詳細</th>
                             </tr>
                         </thead>
                         <tbody>
                             @foreach ($pendingApplications as $application)
                                 <tr class="table-row">
-                                    {{-- 勤怠の日付を表示 --}}
-                                    <td class="table-data">{{ $application->attendance->full_formatted_date ?? 'N/A' }}</td>
-                                    <td class="table-data">勤怠修正申請</td> {{-- 常に勤怠修正申請と仮定 --}}
                                     <td class="table-data status-pending">承認待ち</td>
+                                    {{-- ユーザー名が存在しない場合は空欄にする --}}
+                                    <td class="table-data">{{ $application->user->name ?? '' }}</td>
+                                    {{-- 勤怠の日付が存在しない場合は空欄にする --}}
+                                    <td class="table-data">{{ $application->attendance->full_formatted_date ?? '' }}</td>
+                                    {{-- 申請理由が存在しない場合は空欄にする --}}
+                                    <td class="table-data">{{ $application->reason ?? '' }}</td>
+                                    {{-- 申請日時を表示 (アクセサを使用) --}}
+                                    <td class="table-data">{{ $application->formatted_created_at ?? '' }}</td>
                                     <td class="table-data">
                                         {{-- 詳細ボタン (FN033) --}}
                                         {{-- 承認待ち申請の詳細画面では修正不可となるよう、パラメータを渡す --}}
-                                        <a href="{{ route('attendance.detail', ['id' => $application->attendance_id, 'from_application_list' => true]) }}" class="detail-button">詳細</a>
+                                        <a href="{{ route('attendance.show', ['id' => $application->attendance_id, 'from_application_list' => true]) }}" class="detail-button">詳細</a>
                                     </td>
                                 </tr>
                             @endforeach
@@ -69,22 +76,29 @@
                     <table class="application-table">
                         <thead>
                             <tr>
-                                <th class="table-header">日付</th>
-                                <th class="table-header">申請種別</th>
-                                <th class="table-header">ステータス</th>
+                                <th class="table-header">状態</th>
+                                <th class="table-header">名前</th>
+                                <th class="table-header">対象日時</th>
+                                <th class="table-header">申請理由</th>
+                                <th class="table-header">申請日時</th> {{-- 申請日時ヘッダー --}}
                                 <th class="table-header">詳細</th>
                             </tr>
                         </thead>
                         <tbody>
                             @foreach ($approvedApplications as $application)
                                 <tr class="table-row">
-                                    {{-- 勤怠の日付を表示 --}}
-                                    <td class="table-data">{{ $application->attendance->full_formatted_date ?? 'N/A' }}</td>
-                                    <td class="table-data">勤怠修正申請</td> {{-- 常に勤怠修正申請と仮定 --}}
                                     <td class="table-data status-approved">承認済み</td>
+                                    {{-- ユーザー名が存在しない場合は空欄にする --}}
+                                    <td class="table-data">{{ $application->user->name ?? '' }}</td>
+                                    {{-- 勤怠の日付が存在しない場合は空欄にする --}}
+                                    <td class="table-data">{{ $application->attendance->full_formatted_date ?? '' }}</td>
+                                    {{-- 申請理由が存在しない場合は空欄にする --}}
+                                    <td class="table-data">{{ $application->reason ?? '' }}</td>
+                                    {{-- 申請日時を表示 (アクセサを使用) --}}
+                                    <td class="table-data">{{ $application->formatted_created_at ?? '' }}</td>
                                     <td class="table-data">
                                         {{-- 詳細ボタン (FN033) --}}
-                                        <a href="{{ route('attendance.detail', ['id' => $application->attendance_id]) }}" class="detail-button">詳細</a>
+                                        <a href="{{ route('attendance.show', ['id' => $application->attendance_id]) }}" class="detail-button">詳細</a>
                                     </td>
                                 </tr>
                             @endforeach

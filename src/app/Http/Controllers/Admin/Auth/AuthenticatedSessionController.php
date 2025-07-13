@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Admin\Auth;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request; // このファイルでは直接使用しないが、Requestを継承するクラスの型ヒントとして残す
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\User; // ユーザーモデルをインポート
 use App\Http\Requests\Admin\Auth\AdminLoginRequest; // AdminLoginRequest をインポート
@@ -42,8 +42,8 @@ class AuthenticatedSessionController extends Controller
         // ユーザーが管理者ロールを持っているかのチェックもauthenticate()内で行われる
         $request->session()->regenerate();
 
-        // ログイン成功後の管理者ダッシュボードへのリダイレクト
-        return redirect()->intended(route('admin.dashboard'));
+        // ログイン成功後の管理者勤怠一覧へのリダイレクト
+        return redirect()->intended(route('admin.attendance.list'));
     }
 
     /**
@@ -55,7 +55,7 @@ class AuthenticatedSessionController extends Controller
      */
     public function destroy(Request $request)
     {
-        Auth::guard('web')->logout(); // 'web' ガードを使用してログアウト
+        Auth::guard('admin')->logout(); // ★修正点: 'web' から 'admin' ガードに変更★
 
         $request->session()->invalidate(); // セッションを無効化
 

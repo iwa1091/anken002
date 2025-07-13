@@ -64,7 +64,22 @@ class Attendance extends Model
      */
     public function correctionRequests()
     {
+        // CorrectionRequest モデルが存在することを前提とします。
+        // もし存在しない場合は、先に CorrectionRequest モデルを作成してください。
         return $this->hasMany(CorrectionRequest::class);
+    }
+
+    /**
+     * Check if there is a pending correction request for this attendance record.
+     * この勤怠記録に承認待ちの修正申請があるかどうかをチェックするアクセサ
+     * Bladeで $attendance->hasPendingCorrectionRequest のようにアクセスできます。
+     *
+     * @return bool
+     */
+    public function getHasPendingCorrectionRequestAttribute()
+    {
+        // correctionRequests リレーションを通じて、status が 'pending' のレコードが存在するかを確認
+        return $this->correctionRequests()->where('status', 'pending')->exists();
     }
 
     /**
@@ -90,8 +105,8 @@ class Attendance extends Model
     }
 
     /**
-     * Get the formatted date in "YYYY年MM月DD日" format.
-     * 日付を「YYYY年MM月DD日」形式で取得するアクセサ
+     * Get the formatted date in "YYYY/MM/DD" format.
+     * 日付を「YYYY/MM/DD」形式で取得するアクセサ
      * Bladeで $attendance->full_formatted_date のようにアクセスできます。
      *
      * @return string
@@ -101,7 +116,8 @@ class Attendance extends Model
         if (empty($this->date)) {
             return ''; // 日付が存在しない場合のハンドリング
         }
-        return $this->date->format('Y年m月d日');
+        // ここを 'Y/m/d' に変更
+        return $this->date->format('Y/m/d');
     }
 
     /**

@@ -1,0 +1,200 @@
+/*
+ * /home/ri309/anken02/src/public/css/admin-login.css
+ * 管理者ログイン画面用のカスタムスタイルシート
+ */
+
+/* ベーススタイル */
+body {
+    font-family: 'Inter', sans-serif;
+    /* Interフォントの指定 */
+    background-color: #f3f4f6;
+    /* bg-gray-100 */
+    display: flex;
+    /* flex */
+    align-items: center;
+    /* items-center */
+    justify-content: center;
+    /* justify-center */
+    min-height: 100vh;
+    /* min-h-screen */
+    margin: 0;
+    /* デフォルトのマージンをリセット */
+}
+
+/* メインコンテナ */
+.login-container {
+    width: 100%;
+    /* w-full */
+    max-width: 28rem;
+    /* max-w-md (448px) */
+    background-color: #fff;
+    /* bg-white */
+    padding: 2rem;
+    /* p-8 */
+    border-radius: 0.5rem;
+    /* rounded-lg */
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    /* shadow-lg */
+}
+
+/* フォームタイトル */
+.login-title {
+    font-size: 1.875rem;
+    /* text-3xl */
+    line-height: 2.25rem;
+    /* text-3xl */
+    font-weight: 700;
+    /* font-bold */
+    text-align: center;
+    /* text-center */
+    color: #1f2937;
+    /* text-gray-800 */
+    margin-bottom: 2rem;
+    /* mb-8 */
+    border-radius: 0.375rem;
+    /* rounded-md */
+}
+
+/* エラーメッセージコンテナ */
+.error-message-container {
+    background-color: #fee2e2;
+    /* bg-red-100 */
+    border: 1px solid #f87171;
+    /* border border-red-400 */
+    color: #b91c1c;
+    /* text-red-700 */
+    padding: 0.75rem 1rem;
+    /* px-4 py-3 */
+    border-radius: 0.25rem;
+    /* rounded */
+    position: relative;
+    /* relative */
+    margin-bottom: 1rem;
+    /* mb-4 */
+    display: block;
+    /* block */
+}
+
+/* フォームグループ（ラベルと入力フィールドのコンテナ） */
+.form-group {
+    margin-bottom: 1.5rem;
+    /* mb-6 */
+}
+
+/* ラベル */
+.form-label {
+    display: block;
+    /* block */
+    color: #374151;
+    /* text-gray-700 */
+    font-size: 0.875rem;
+    /* text-sm */
+    line-height: 1.25rem;
+    /* text-sm */
+    font-weight: 700;
+    /* font-bold */
+    margin-bottom: 0.5rem;
+    /* mb-2 */
+}
+
+/* 入力フィールド */
+.form-input {
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+    /* shadow */
+    -webkit-appearance: none;
+    /* appearance-none */
+    -moz-appearance: none;
+    /* appearance-none */
+    appearance: none;
+    /* appearance-none */
+    border: 1px solid #e5e7eb;
+    /* border */
+    border-radius: 0.375rem;
+    /* rounded-md */
+    width: 100%;
+    /* w-full */
+    padding: 0.75rem 1rem;
+    /* py-3 px-4 */
+    color: #374151;
+    /* text-gray-700 */
+    line-height: 1.25;
+    /* leading-tight */
+    outline: none;
+    /* focus:outline-none */
+}
+
+/* 入力フィールドのフォーカススタイル */
+.form-input:focus {
+    border-color: transparent;
+    /* focus:border-transparent */
+    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.5);
+    /* focus:ring-2 focus:ring-blue-500 */
+}
+
+/* エラー時の入力フィールドのボーダー */
+.form-input.is-invalid {
+    border-color: #ef4444;
+    /* border-red-500 */
+}
+
+/* パスワード入力フィールドの特定のマージン */
+.form-input.password-input {
+    margin-bottom: 0.75rem;
+    /* mb-3 */
+}
+
+/* 入力フィールドの下のエラーメッセージ */
+.input-error-message {
+    color: #ef4444;
+    /* text-red-500 */
+    font-size: 0.75rem;
+    /* text-xs */
+    line-height: 1rem;
+    /* text-xs */
+    font-style: italic;
+    /* italic */
+    margin-top: 0.5rem;
+    /* mt-2 */
+}
+
+/* ログインボタンコンテナ */
+.button-container {
+    display: flex;
+    /* flex */
+    align-items: center;
+    /* items-center */
+    justify-content: space-between;
+    /* justify-between */
+}
+
+/* ログインボタン */
+.login-button {
+    background-color: #2563eb;
+    /* bg-blue-600 */
+    color: #fff;
+    /* text-white */
+    font-weight: 700;
+    /* font-bold */
+    padding: 0.75rem 1.5rem;
+    /* py-3 px-6 */
+    border-radius: 0.375rem;
+    /* rounded-md */
+    outline: none;
+    /* focus:outline-none */
+    box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.5);
+    /* focus:shadow-outline */
+    transition: background-color 0.3s ease-in-out;
+    /* transition duration-300 ease-in-out */
+    width: 100%;
+    /* w-full */
+    border: none;
+    /* ボタンのデフォルトボーダーを削除 */
+    cursor: pointer;
+    /* カーソルをポインターに */
+}
+
+/* ログインボタンのホバー状態 */
+.login-button:hover {
+    background-color: #1d4ed8;
+    /* hover:bg-blue-700 */
+}

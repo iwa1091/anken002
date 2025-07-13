@@ -131,10 +131,6 @@ Route::middleware(['auth'])->group(function () {
 
 // --- 管理者向け機能ルート ---
 Route::middleware(['auth', 'can:admin-access'])->prefix('admin')->name('admin.')->group(function () {
-    // 管理者ダッシュボード（デフォルト）
-    Route::get('/dashboard', function () {
-        return view('admin.dashboard');
-    })->name('dashboard');
 
     // PG08 勤怠一覧画面（管理者）
     Route::get('/attendance/list/{date?}', [AdminAttendanceController::class, 'listDaily'])->name('attendance.list');
