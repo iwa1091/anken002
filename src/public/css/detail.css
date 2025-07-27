@@ -1,170 +1,208 @@
-/* 勤怠詳細ページの全体コンテナ */
-.detail-container {
-    max-width: 960px;
-    margin: 40px auto;
-    padding: 40px;
-    background-color: #fff;
-    border-radius: 12px;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
-    font-family: 'Inter', sans-serif;
+/* リセット */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
 }
 
-/* タイトル */
-.detail-container h2 {
-    font-size: 1.75rem;
-    font-weight: bold;
-    color: #111;
-    margin-bottom: 2rem;
-    position: relative;
-    padding-left: 1rem;
-}
-
-.detail-container h2::before {
-    content: '';
-    position: absolute;
-    top: 8px;
-    left: 0;
-    width: 6px;
-    height: 24px;
-    background-color: #000;
-}
-
-/* 情報ヘッダー（名前・日付） */
-.info-header {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-    margin-bottom: 2rem;
-    font-size: 1.1rem;
-}
-
-.info-label {
-    margin-right: 12px;
-    min-width: 60px;
-    display: inline-block;
-}
-
-.info-row {
-    display: flex;
-    align-items: center;
-    font-weight: 500;
+/* 全体背景とフォント */
+body {
+    background-color: #f4f3f7;
+    font-family: "Helvetica Neue", "Arial", sans-serif;
     color: #333;
 }
 
-.info-value {
-    color: #000;
+.detail-container {
+    max-width: 900px;
+    margin: 40px auto;
+    padding: 0 16px;
 }
 
-/* フォーム */
-.correction-form {
-    display: flex;
-    flex-direction: column;
-    gap: 1.5rem;
+.page-title,
+.detail-container h2 {
+    font-size: 24px;
+    font-weight: bold;
+    margin-bottom: 30px;
+    border-left: 6px solid #000;
+    padding-left: 12px;
 }
 
-/* ラベルとグループ */
-.form-group {
-    display: flex;
-    align-items: center;
-    margin-bottom: 16px;
-    gap: 12px;
+.detail-table {
+    width: 100%;
+    border-collapse: collapse;
+    background-color: #fff;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 }
 
-.form-label {
-    min-width: 100px;
-    font-weight: 500;
-    color: #444;
-    font-size: 1rem;
-    text-align: left;
+.detail-table tr {
+    border-bottom: 1px solid #e0e0e0;
 }
 
-/* 入力欄 */
-input[type="time"],
+.detail-table td {
+    padding: 20px;
+    text-align: center;
+    font-size: 16px;
+    vertical-align: middle;
+}
+
+.detail-table td:first-child {
+    width: 25%;
+    font-weight: bold;
+    background-color: #fafafa;
+}
+
+.time-input,
+input[type="time"] {
+    width: 80px;
+    padding: 6px 10px;
+    text-align: center;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 14px;
+    background-color: #fff;
+}
+
+textarea.memo,
 textarea {
-    padding: 8px 12px;
+    width: 90%;
+    height: 80px;
+    padding: 10px;
+    font-size: 14px;
     border: 1px solid #ccc;
     border-radius: 6px;
-    font-size: 1rem;
-    flex: 1;
-    max-width: 200px;
+    resize: none;
+    background-color: #fff;
 }
 
-/* 休憩時間ブロック */
-.breaks-container {
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
+.submit-button {
+    display: block;
+    margin: 30px auto 0;
+    padding: 10px 36px;
+    font-size: 16px;
+    font-weight: bold;
+    color: #fff;
+    background-color: #000;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: opacity 0.3s ease;
+}
+
+.submit-button:hover {
+    opacity: 0.8;
+}
+
+.info-header,
+.info-group,
+.form-group {
+    margin-bottom: 24px;
+}
+
+.info-label {
+    display: inline-block;
+    width: 80px;
+    font-weight: bold;
+}
+
+.info-value {
+    display: inline-block;
+    min-width: 100px;
 }
 
 .break-item {
     display: flex;
     align-items: center;
-    gap: 0.75rem;
+    gap: 8px;
+    margin-bottom: 10px;
 }
 
-/* テキストエリア */
-textarea {
-    max-width: 100%;
-    width: 60%;
-    min-height: 80px;
-}
-
-/* エラーメッセージ */
-.error-message {
-    color: #e53e3e;
-    font-size: 0.85rem;
-    margin-top: 0.25rem;
-}
-
-/* 修正ボタン */
-.submit-button {
-    align-self: flex-end;
-    padding: 12px 28px;
-    font-size: 1rem;
+.break-label {
+    width: 60px;
     font-weight: bold;
-    color: #fff;
-    background-color: #000;
-    border: none;
+}
+
+.error-message {
+    color: red;
+    font-size: 14px;
+    margin-top: 4px;
+}
+
+.alert {
+    background-color: #ffe0e0;
+    border: 1px solid #ff9999;
+    padding: 10px;
     border-radius: 6px;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
+    margin-bottom: 20px;
 }
 
-.submit-button:hover {
-    background-color: #333;
+.alert ul {
+    margin-top: 8px;
+    padding-left: 20px;
 }
 
-/* 修正不可メッセージ */
-.restricted-message {
-    color: #f56565;
-    font-size: 0.95rem;
-    margin-top: 1.5rem;
+.pending-message {
     text-align: center;
+    color: red;
+    font-weight: bold;
+    margin-top: 20px;
 }
 
-/* ========== レスポンシブ：1400px〜1540px対応 ========== */
-@media screen and (min-width: 1400px) and (max-width: 1540px) {
+/* レスポンシブ対応：タブレット */
+@media screen and (max-width: 850px) {
     .detail-container {
-        padding: 60px 40px;
-        margin: 60px auto;
+        padding: 0 12px;
     }
 
-    .info-header {
-        font-size: 1.25rem;
+    .page-title,
+    .detail-container h2 {
+        font-size: 20px;
     }
 
-    .form-label {
-        font-size: 1rem;
+    .detail-table td {
+        font-size: 14px;
+        padding: 16px 8px;
     }
 
-    input[type="time"],
-    textarea {
-        font-size: 1rem;
-        padding: 10px 14px;
+    .time-input,
+    input[type="time"] {
+        width: 70px;
+        font-size: 12px;
     }
 
     .submit-button {
-        font-size: 1.05rem;
-        padding: 14px 32px;
+        width: 100%;
+        padding: 12px 0;
+    }
+
+    .break-item {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+}
+
+/* レスポンシブ対応：PCワイド */
+@media screen and (min-width: 1400px) and (max-width: 1540px) {
+    .detail-container {
+        max-width: 1100px;
+    }
+
+    .detail-table td {
+        font-size: 18px;
+    }
+
+    .time-input,
+    input[type="time"] {
+        font-size: 16px;
+    }
+
+    textarea.memo,
+    textarea {
+        font-size: 16px;
+    }
+
+    .submit-button {
+        font-size: 18px;
     }
 }

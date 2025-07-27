@@ -7,6 +7,8 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
+use App\Models\Role; // ★追加: Roleモデルをインポート
+use Illuminate\Support\Facades\Log; // Logファサードをインポート (今回は残すが、不要なら削除可)
 
 // MustVerifyEmail インターフェースを実装することで、Laravelのメール認証機能が有効になります。
 class User extends Authenticatable implements MustVerifyEmail
@@ -63,6 +65,16 @@ class User extends Authenticatable implements MustVerifyEmail
      */
     public function isAdmin(): bool
     {
+        // ★ここからデバッグログを削除★
+        // Log::info('DEBUG: isAdmin() called for User ID: ' . $this->id . ', Email: ' . $this->email);
+        // Log::info('DEBUG: User has role relationship loaded: ' . ($this->relationLoaded('role') ? 'true' : 'false'));
+        // if ($this->relationLoaded('role') && $this->role) {
+        //     Log::info('DEBUG: User role ID: ' . $this->role->id . ', Role name: ' . $this->role->name);
+        // } else {
+        //     Log::warning('DEBUG: User role relationship not loaded or role is null.');
+        // }
+        // ★ここまでデバッグログを削除★
+
         // Roleモデルのリレーションを利用して判定
         // Roleモデルに 'admin' という name があることを想定
         return $this->role && $this->role->name === 'admin';

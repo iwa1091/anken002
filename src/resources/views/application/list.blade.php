@@ -25,7 +25,6 @@
 
         {{-- 承認待ちの申請一覧 (FN031) --}}
         <div id="content-pending" class="tab-content">
-            <h3 class="tab-content-heading">承認待ちの申請</h3>
             @if ($pendingApplications->isEmpty())
                 <p class="no-applications-message">承認待ちの申請はありません。</p>
             @else
@@ -68,7 +67,6 @@
 
         {{-- 承認済みの申請一覧 (FN032) --}}
         <div id="content-approved" class="tab-content">
-            <h3 class="tab-content-heading">承認済みの申請</h3>
             @if ($approvedApplications->isEmpty())
                 <p class="no-applications-message">承認済みの申請はありません。</p>
             @else

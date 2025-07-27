@@ -1,95 +1,102 @@
 <?php
 
-/**
- * This file is part of the ramsey/collection library
- *
- * For the full copyright and license information, please view the LICENSE
- * file that was distributed with this source code.
- *
- * @copyright Copyright (c) Ben Ramsey <ben@benramsey.com>
- * @license http://opensource.org/licenses/MIT MIT
- */
+namespace App\Models;
 
-declare(strict_types=1);
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+use Carbon\Carbon; // Carbonを使用するためにこの行を追加
 
-namespace Ramsey\Collection;
-
-/**
- * A collection represents a group of objects.
- *
- * Each object in the collection is of a specific, defined type.
- *
- * This is a direct implementation of `CollectionInterface`, provided for
- * the sake of convenience.
- *
- * Example usage:
- *
- * ```
- * $collection = new \Ramsey\Collection\Collection('My\\Foo');
- * $collection->add(new \My\Foo());
- * $collection->add(new \My\Foo());
- *
- * foreach ($collection as $foo) {
- *     // Do something with $foo
- * }
- * ```
- *
- * It is preferable to subclass `AbstractCollection` to create your own typed
- * collections. For example:
- *
- * ```
- * namespace My\Foo;
- *
- * class FooCollection extends \Ramsey\Collection\AbstractCollection
- * {
- *     public function getType()
- *     {
- *         return 'My\\Foo';
- *     }
- * }
- * ```
- *
- * And then use it similarly to the earlier example:
- *
- * ```
- * $fooCollection = new \My\Foo\FooCollection();
- * $fooCollection->add(new \My\Foo());
- * $fooCollection->add(new \My\Foo());
- *
- * foreach ($fooCollection as $foo) {
- *     // Do something with $foo
- * }
- * ```
- *
- * The benefit with this approach is that you may do type-checking on the
- * collection object:
- *
- * ```
- * if ($collection instanceof \My\Foo\FooCollection) {
- *     // the collection is a collection of My\Foo objects
- * }
- * ```
- *
- * @template T
- * @extends AbstractCollection<T>
- */
-class Collection extends AbstractCollection
+class CorrectionRequest extends Model
 {
+    use HasFactory;
+
     /**
-     * Constructs a collection object of the specified type, optionally with the
-     * specified data.
+     * The attributes that are mass assignable.
+     * 一括代入可能な属性
      *
-     * @param string $collectionType The type or class name associated with this
-     *     collection.
-     * @param array<array-key, T> $data The initial items to store in the collection.
+     * @var array<int, string>
      */
-    public function __construct(private readonly string $collectionType, array $data = [])
+    protected $fillable = [
+        'attendance_id',
+        'user_id',
+        // 'type', // ★★★ この行を削除しました ★★★
+        'requested_check_in_time',
+        'requested_check_out_time',
+        'requested_breaks', // JSON形式で保存
+        'reason',
+        'status',
+        'approved_by', // 承認者ID
+        'approved_at', // 承認日時
+    ];
+
+    /**
+     * The attributes that should be cast.
+     * キャスト対象の属性
+     *
+     * @var array<string, string>
+     */
+    protected $casts = [
+        'requested_breaks' => 'array', // JSONカラムを自動的に配列にキャスト
+        'requested_check_in_time' => 'datetime',
+        'requested_check_out_time' => 'datetime',
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime',
+        'approved_at' => 'datetime', // approved_atもdatetimeにキャスト
+    ];
+
+    /**
+     * Get the user that owns the correction request.
+     * 申請者（ユーザー）とのリレーション
+     */
+    public function user()
     {
-        parent::__construct($data);
+        return $this->belongsTo(User::class);
     }
 
-    public function getType(): string
+    /**
+     * Get the attendance record associated with the correction request.
+     * 修正対象の勤怠データとのリレーション
+     */
+    public function attendance()
     {
-        return $this->collectionType;
+        return $this->belongsTo(Attendance::class);
+    }
+
+    /**
+     * Get the formatted created_at date in "YYYY/MM/DD" format.
+     * 申請作成日時を「YYYY/MM/DD」形式で取得するアクセサ
+     * Bladeで $correctionRequest->formatted_created_at のようにアクセスできます。
+     *
+     * @return string
+     */
+    public function getFormattedCreatedAtAttribute()
+    {
+        // created_at属性がCarbonインスタンスであることを前提とする
+        // 存在しない場合は空文字列を返す
+        return $this->created_at ? $this->created_at->format('Y/m/d') : '';
+    }
+
+    /**
+     * Get the formatted requested check-in time in "HH:MM" format.
+     * 修正希望出勤時刻を「HH:MM」形式で取得するアクセサ。
+     * nullの場合は「00:00」を返します。
+     *
+     * @return string
+     */
+    public function getFormattedRequestedCheckInTimeAttribute(): string
+    {
+        return $this->requested_check_in_time ? $this->requested_check_in_time->format('H:i') : '00:00';
+    }
+
+    /**
+     * Get the formatted requested check-out time in "HH:MM" format.
+     * 修正希望退勤時刻を「HH:MM」形式で取得するアクセサ。
+     * nullの場合は「00:00」を返します。
+     *
+     * @return string
+     */
+    public function getFormattedRequestedCheckOutTimeAttribute(): string
+    {
+        return $this->requested_check_out_time ? $this->requested_check_out_time->format('H:i') : '00:00';
     }
 }

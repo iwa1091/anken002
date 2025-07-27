@@ -3,15 +3,14 @@
 namespace App\Http\Controllers;
 
 use App\Models\Attendance;
-use App\Models\BreakTime;
-// use App\Models\CorrectionRequest; // 勤怠修正申請モデル - ApplicationControllerに移動するため削除
+use App\Models\BreakTime; // BreakTimeモデルをインポート
 use App\Http\Requests\ClockInRequest; // 出勤打刻のリクエスト
 use App\Http\Requests\ClockOutRequest; // 退勤打刻のリクエスト
-// use App\Http\Requests\CorrectionRequestStoreRequest; // 修正申請のリクエストバリデーション - ApplicationControllerに移動するため削除
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth; // 認証ユーザーのIDを取得
 use Illuminate\Support\Facades\DB; // トランザクション処理のためにDBファサードを使用
 use Carbon\Carbon; // 日付・時刻操作のためにCarbonを使用
+use Illuminate\Support\Facades\Log; // Logファサードをインポート
 
 class AttendanceController extends Controller
 {
@@ -46,9 +45,9 @@ class AttendanceController extends Controller
         if ($attendance) {
             if ($attendance->check_out_time) {
                 $attendanceStatus = '退勤済';
-            } elseif ($latestBreak) {
+            } elseif ($latestBreak) { // 未終了の休憩があれば「休憩中」
                 $attendanceStatus = '休憩中';
-            } elseif ($attendance->check_in_time) {
+            } elseif ($attendance->check_in_time) { // 出勤時刻があれば「出勤中」
                 $attendanceStatus = '出勤中';
             }
         }
@@ -86,8 +85,8 @@ class AttendanceController extends Controller
                 [
                     'check_in_time' => Carbon::now(),
                     'status' => '出勤中',
-                    // check_out_time はnullのまま
-                    // remarks もnullのまま
+                    'break_time' => 0, // 初期化
+                    'working_time' => 0, // 初期化
                 ]
             );
 
@@ -173,13 +172,14 @@ class AttendanceController extends Controller
             return redirect()->back()->with('error', '出勤打刻がされていません。');
         }
 
-        // 未終了の休憩レコードがないか確認 (FN021-5のビジネスロジック)
+        // 未終了の休憩レコードを取得
         $latestBreak = BreakTime::where('attendance_id', $attendance->id)
             ->whereNull('break_end_time')
             ->first();
 
+        // ★修正点: 未終了の休憩がない場合はエラーメッセージを返す。ある場合は処理を続行。★
         if (!$latestBreak) {
-            return redirect()->back()->with('error', '休憩が開始されていません。');
+            return redirect()->back()->with('error', '休憩が開始されていません。'); // 休憩開始前なのに休憩戻を押した場合
         }
 
         DB::beginTransaction(); // トランザクション開始
@@ -187,6 +187,10 @@ class AttendanceController extends Controller
             // 休憩終了時刻を更新 (FN021-7)
             $latestBreak->break_end_time = Carbon::now();
             $latestBreak->save();
+
+            // AttendanceモデルのcalculateAndSaveTotalBreakTimeメソッドを呼び出し
+            $attendance->load('breakTimes'); // 最新のbreakTimesリレーションを再読み込み
+            $attendance->calculateAndSaveTotalBreakTime();
 
             // 勤怠ステータスを出勤中に更新 (FN021-6)
             $attendance->status = '出勤中';
@@ -243,6 +247,22 @@ class AttendanceController extends Controller
             $attendance->status = '退勤済'; // FN022-4
             $attendance->save();
 
+            // AttendanceモデルのcalculateAndSaveTotalBreakTimeメソッドを呼び出し
+            $attendance->load('breakTimes'); // 最新のbreakTimesリレーションを再読み込み
+            $attendance->calculateAndSaveTotalBreakTime();
+
+            // 合計勤務時間を計算して更新
+            $checkIn = Carbon::parse($attendance->check_in_time);
+            $checkOut = Carbon::parse($attendance->check_out_time);
+            $totalBreakTime = $attendance->break_time; // Attendanceモデルに保存された合計休憩時間（秒）を使用
+
+            $workingTime = $checkOut->diffInSeconds($checkIn) - $totalBreakTime;
+            if ($workingTime < 0) {
+                $workingTime = 0; // 勤務時間が負にならないように調整
+            }
+            $attendance->working_time = $workingTime;
+            $attendance->save(); // working_timeも保存
+
             DB::commit(); // コミット
             // FN022-3: 「お疲れ様でした。」とメッセージが表示される
             return redirect()->back()->with('success', 'お疲れ様でした。退勤打刻が完了しました。');
@@ -283,18 +303,20 @@ class AttendanceController extends Controller
             $totalBreakSeconds = 0;
             foreach ($attendance->breakTimes as $breakTime) {
                 if ($breakTime->break_start_time && $breakTime->break_end_time) {
-                    $totalBreakSeconds += $breakTime->break_start_time->diffInSeconds($breakTime->break_end_time);
+                    $duration = $breakTime->break_start_time->diffInSeconds($breakTime->break_end_time);
+                    $totalBreakSeconds += $duration;
                 }
             }
-            $attendance->total_break_time = $totalBreakSeconds; // 秒数で保存
+            $attendance->break_time = $totalBreakSeconds; // 秒数で保存
 
             $totalWorkingSeconds = 0;
             if ($attendance->check_in_time && $attendance->check_out_time) {
-                // 勤務時間から休憩時間を引く
                 $totalWorkingSeconds = $attendance->check_in_time->diffInSeconds($attendance->check_out_time) - $totalBreakSeconds;
+                if ($totalWorkingSeconds < 0) {
+                    $totalWorkingSeconds = 0;
+                }
             }
-            $attendance->total_working_time = $totalWorkingSeconds; // 秒数で保存
-
+            $attendance->working_time = $totalWorkingSeconds;
             return $attendance;
         });
 
@@ -305,9 +327,9 @@ class AttendanceController extends Controller
 
         return view('attendance.list', compact(
             'attendances',
-            'currentMonth', // 変数名をBladeに合わせて修正
-            'prevMonth',     // Carbonインスタンスのまま渡す
-            'nextMonth'      // Carbonインスタンスのまま渡す
+            'currentMonth',
+            'prevMonth',
+            'nextMonth'
         ));
     }
 
@@ -329,7 +351,9 @@ class AttendanceController extends Controller
             ->where('user_id', $user->id)
             ->firstOrFail();
 
-        // 勤怠詳細ビューを返す
+        // ★追加: 詳細表示時にも合計休憩時間を計算してセット ★
+        $attendance->calculateAndSaveTotalBreakTime();
+
         return view('attendance.detail', compact('attendance'));
     }
 
@@ -346,6 +370,7 @@ class AttendanceController extends Controller
     //     $user = Auth::user();
 
     //     // 修正対象の勤怠レコードをユーザーIDで確認して取得
+    //     // 関連する休憩時間と修正申請もEager Load
     //     $attendance = Attendance::where('id', $id)
     //         ->where('user_id', $user->id)
     //         ->firstOrFail();

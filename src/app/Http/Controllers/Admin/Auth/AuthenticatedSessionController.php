@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\User; // ユーザーモデルをインポート
 use App\Http\Requests\Admin\Auth\AdminLoginRequest; // AdminLoginRequest をインポート
+use Illuminate\Support\Facades\Log; // Logファサードをインポート (今回は残すが、不要なら削除可)
 
 class AuthenticatedSessionController extends Controller
 {
@@ -30,17 +31,23 @@ class AuthenticatedSessionController extends Controller
      */
     public function store(AdminLoginRequest $request) // 型ヒントをAdminLoginRequestに変更
     {
+        // Log::info('DEBUG: AdminLoginRequest store method started.'); // この行を削除
+
         // バリデーションと認証はAdminLoginRequestクラスのauthenticate()メソッドによって自動的に行われる
         // もしバリデーションや認証が失敗した場合、自動的に適切なエラーレスポンスが返される
-
-        // AdminLoginRequestのauthenticateメソッドを呼び出して認証を実行
-        // ここで認証が失敗すると、throwValidationExceptionにより例外がスローされ、
-        // 自動的に前のページにリダイレクトされる
-        $request->authenticate();
+        $request->authenticate(); // 認証処理を実行
 
         // 認証成功後の処理
-        // ユーザーが管理者ロールを持っているかのチェックもauthenticate()内で行われる
         $request->session()->regenerate();
+
+        // 認証成功直後の状態をログに出力 (デバッグログを削除)
+        // if (Auth::guard('admin')->check()) {
+        //     $user = Auth::guard('admin')->user();
+        //     Log::info('DEBUG: Admin authenticated successfully. User ID: ' . $user->id . ', Email: ' . $user->email);
+        //     Log::info('DEBUG: User is admin (via isAdmin() method): ' . ($user->isAdmin() ? 'true' : 'false'));
+        // } else {
+        //     Log::warning('DEBUG: Admin authentication failed or guard check returned false after authenticate().');
+        // }
 
         // ログイン成功後の管理者勤怠一覧へのリダイレクト
         return redirect()->intended(route('admin.attendance.list'));
@@ -55,7 +62,8 @@ class AuthenticatedSessionController extends Controller
      */
     public function destroy(Request $request)
     {
-        Auth::guard('admin')->logout(); // ★修正点: 'web' から 'admin' ガードに変更★
+        // 管理者ガード 'admin' を使用してログアウトします。
+        Auth::guard('admin')->logout();
 
         $request->session()->invalidate(); // セッションを無効化
 

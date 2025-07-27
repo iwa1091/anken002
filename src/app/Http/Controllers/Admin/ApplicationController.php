@@ -22,6 +22,9 @@ class ApplicationController extends Controller
      */
     public function index(Request $request)
     {
+        // URLから 'tab' クエリパラメータを取得し、デフォルトは 'pending' とする
+        $activeTab = $request->query('tab', 'pending');
+
         // 全ての修正申請を取得し、最新のものが上に来るようにソート
         // userとattendanceリレーションをEager Load
         $correctionRequests = CorrectionRequest::with(['user', 'attendance'])
@@ -29,7 +32,8 @@ class ApplicationController extends Controller
             ->orderBy('created_at', 'desc')
             ->paginate(15); // 1ページあたり15件表示
 
-        return view('admin.application.list', compact('correctionRequests'));
+        // 取得した修正申請データとアクティブなタブ情報をビューに渡して表示
+        return view('admin.application.list', compact('correctionRequests', 'activeTab'));
     }
 
     /**
@@ -73,6 +77,11 @@ class ApplicationController extends Controller
         try {
             // 申請ステータスを更新
             $correctionRequest->status = $request->status;
+            // 承認された場合、承認日時と承認者IDを記録
+            if ($request->status === 'approved') {
+                $correctionRequest->approved_at = Carbon::now();
+                $correctionRequest->approved_by = Auth::id(); // ログイン中の管理者のIDを記録
+            }
             $correctionRequest->save();
 
             // 申請が承認された場合、勤怠データを更新
@@ -81,24 +90,35 @@ class ApplicationController extends Controller
 
                 // 出勤時刻の修正
                 if ($correctionRequest->requested_check_in_time) {
-                    $attendance->check_in_time = $correctionRequest->requested_check_in_time;
+                    // requested_check_in_timeが文字列として保存されている場合、Carbon::parseで変換
+                    $attendance->check_in_time = Carbon::parse($correctionRequest->requested_check_in_time);
                 }
                 // 退勤時刻の修正
                 if ($correctionRequest->requested_check_out_time) {
-                    $attendance->check_out_time = $correctionRequest->requested_check_out_time;
+                    // requested_check_out_timeが文字列として保存されている場合、Carbon::parseで変換
+                    $attendance->check_out_time = Carbon::parse($correctionRequest->requested_check_out_time);
                 }
 
                 // 休憩時間の修正（既存を削除し、新しいものを挿入）
-                if (!empty($correctionRequest->requested_breaks)) {
+                // requested_breaksがJSON文字列の場合、デコードして使用
+                $requestedBreaks = is_string($correctionRequest->requested_breaks)
+                                   ? json_decode($correctionRequest->requested_breaks, true)
+                                   : $correctionRequest->requested_breaks;
+
+                if (!empty($requestedBreaks) && is_array($requestedBreaks)) {
                     // 既存の休憩時間を削除
                     $attendance->breakTimes()->delete();
 
                     // 新しい休憩時間を挿入
-                    foreach ($correctionRequest->requested_breaks as $break) {
+                    foreach ($requestedBreaks as $break) {
+                        // 勤怠の日付と休憩時刻を組み合わせてCarbonインスタンスを作成
+                        $breakStartTime = Carbon::parse($attendance->date->toDateString() . ' ' . ($break['start'] ?? '00:00'));
+                        $breakEndTime = Carbon::parse($attendance->date->toDateString() . ' ' . ($break['end'] ?? '00:00'));
+
                         BreakTime::create([
                             'attendance_id' => $attendance->id,
-                            'break_start_time' => Carbon::parse($attendance->date->toDateString() . ' ' . $break['start']),
-                            'break_end_time' => Carbon::parse($attendance->date->toDateString() . ' ' . $break['end']),
+                            'break_start_time' => $breakStartTime,
+                            'break_end_time' => $breakEndTime,
                         ]);
                     }
                 } else {
@@ -107,10 +127,13 @@ class ApplicationController extends Controller
                 }
 
                 $attendance->save(); // 勤怠データを保存
+                // 勤怠データ更新後、合計休憩時間と勤務時間を再計算して保存
+                $attendance->calculateAndSaveTotalBreakTime();
             }
 
             DB::commit();
-            return redirect()->route('admin.application.list')->with('success', '申請が正常に処理されました。');
+            // ★修正: 申請一覧画面へのリダイレクトから、現在の詳細画面へのリダイレクトに変更 ★
+            return redirect()->back()->with('success', '申請が正常に処理されました。');
         } catch (\Exception $e) {
             DB::rollBack();
             return redirect()->back()->with('error', '申請処理中にエラーが発生しました: ' . $e->getMessage());

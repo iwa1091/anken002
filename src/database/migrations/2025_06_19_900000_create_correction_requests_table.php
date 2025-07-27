@@ -21,6 +21,11 @@ return new class extends Migration
             $table->json('requested_breaks')->nullable()->comment('修正希望の休憩情報（JSON形式）'); // JSONタイプ
             $table->text('reason')->comment('修正理由'); // textタイプに修正
             $table->string('status', 50)->default('pending')->comment('申請の状態（承認待ち／承認済／却下など）'); // stringタイプに修正、デフォルト値設定
+
+            // 承認日時カラムと承認者IDカラムを追加
+            $table->timestamp('approved_at')->nullable()->comment('承認日時');
+            $table->foreignId('approved_by')->nullable()->constrained('users')->onDelete('set null')->comment('承認者ユーザーID');
+
             $table->timestamps(); // created_at と updated_at
         });
     }
@@ -33,4 +38,3 @@ return new class extends Migration
         Schema::dropIfExists('correction_requests');
     }
 };
-

@@ -12,28 +12,37 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('attendances', function (Blueprint $table) {
-            $table->id(); // 主キー
+            $table->id(); // Primary key
 
-            // user_idカラムを追加し、usersテーブルへの外部キー制約を設定
-            // ユーザーが削除されたら関連する勤怠データも削除
+            // Add user_id column and set foreign key constraint to users table
+            // If a user is deleted, associated attendance data is also deleted
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
 
-            $table->date('date')->comment('勤務日'); // 勤務日
+            $table->date('date')->comment('勤務日'); // Work date
 
-            // user_id と date の組み合わせでユニーク制約を設定
-            // 同じユーザーが同じ日に複数の勤怠レコードを持たないようにする
+            // Set unique constraint with combination of user_id and date
+            // To prevent the same user from having multiple attendance records on the same day
             $table->unique(['user_id', 'date']);
 
-            $table->dateTime('check_in_time')->nullable()->comment('出勤時刻'); // 出勤時刻（打刻がない場合はnull）
-            $table->dateTime('check_out_time')->nullable()->comment('退勤時刻'); // 退勤時刻（打刻がない場合はnull）
+            $table->dateTime('check_in_time')->nullable()->comment('出勤時刻'); // Check-in time (null if not punched)
+            $table->dateTime('check_out_time')->nullable()->comment('退勤時刻'); // Check-out time (null if not punched)
 
-            // 勤務状況を示すステータス（例: 勤務外, 出勤中, 休憩中, 退勤済）
-            // stringタイプで、デフォルト値を '勤務外' に設定
+            // Add break start time and end time
+            $table->timestamp('break_start_time')->nullable()->comment('休憩開始時刻');
+            $table->timestamp('break_end_time')->nullable()->comment('休憩終了時刻');
+
+            // Add break time (in seconds) and working time (in seconds)
+            // unsignedInteger is an unsigned integer type that does not allow negative values, suitable for time calculation
+            $table->unsignedInteger('break_time')->default(0)->comment('休憩時間（秒）');
+            $table->unsignedInteger('working_time')->default(0)->comment('勤務時間（秒）');
+
+            // Status indicating work status (e.g., Off Duty, Working, On Break, Clocked Out)
+            // String type, default to '勤務外'
             $table->string('status', 50)->default('勤務外')->comment('勤務状況');
 
-            $table->text('remarks')->nullable()->comment('備考'); // 備考・メモ欄（長文を考慮しtextタイプ）
+            $table->text('remarks')->nullable()->comment('備考'); // Remarks/memo field (text type for longer notes)
 
-            $table->timestamps(); // created_at と updated_at
+            $table->timestamps(); // created_at and updated_at
         });
     }
 

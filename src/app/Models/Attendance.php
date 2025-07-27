@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Carbon\Carbon; // 日付・時刻操作のためにCarbonを使用
 use Carbon\CarbonInterval; // CarbonIntervalも使用するため追加
+use Illuminate\Support\Facades\Log; // Logファサードをインポート
 
 class Attendance extends Model
 {
@@ -24,6 +25,8 @@ class Attendance extends Model
         'check_out_time',
         'status',
         'remarks',
+        'break_time',         // ★保持: 秒単位の合計休憩時間 (BreakTimeモデルから計算)
+        'working_time',       // ★保持: 秒単位の合計勤務時間
     ];
 
     /**
@@ -36,8 +39,8 @@ class Attendance extends Model
         'date' => 'date',           // 日付としてキャスト
         'check_in_time' => 'datetime', // 出勤時刻をCarbonインスタンスにキャスト
         'check_out_time' => 'datetime',// 退勤時刻をCarbonインスタンスにキャスト
-        'created_at' => 'datetime',    // created_at をCarbonインスタンスにキャスト
-        'updated_at' => 'datetime',    // updated_at をCarbonインスタンスにキャスト
+        'created_at' => 'datetime',   // created_at をCarbonインスタンスにキャスト
+        'updated_at' => 'datetime',   // updated_at をCarbonインスタンスにキャスト
     ];
 
     /**
@@ -64,8 +67,6 @@ class Attendance extends Model
      */
     public function correctionRequests()
     {
-        // CorrectionRequest モデルが存在することを前提とします。
-        // もし存在しない場合は、先に CorrectionRequest モデルを作成してください。
         return $this->hasMany(CorrectionRequest::class);
     }
 
@@ -78,7 +79,6 @@ class Attendance extends Model
      */
     public function getHasPendingCorrectionRequestAttribute()
     {
-        // correctionRequests リレーションを通じて、status が 'pending' のレコードが存在するかを確認
         return $this->correctionRequests()->where('status', 'pending')->exists();
     }
 
@@ -91,16 +91,13 @@ class Attendance extends Model
      */
     public function getFormattedDateAttribute()
     {
-        // date属性がCarbonインスタンスであることを前提とする (protected $casts で設定済み)
         if (empty($this->date)) {
-            return ''; // 日付が存在しない場合のハンドリング
+            return '';
         }
 
-        // 曜日を日本語で取得するための配列
         $dayOfWeekNames = ['日', '月', '火', '水', '木', '金', '土'];
         $dayOfWeek = $dayOfWeekNames[$this->date->dayOfWeek];
 
-        // 月/日（曜日）の形式で返す
         return $this->date->format('m/d') . '（' . $dayOfWeek . '）';
     }
 
@@ -114,10 +111,33 @@ class Attendance extends Model
     public function getFullFormattedDateAttribute()
     {
         if (empty($this->date)) {
-            return ''; // 日付が存在しない場合のハンドリング
+            return '';
         }
-        // ここを 'Y/m/d' に変更
         return $this->date->format('Y/m/d');
+    }
+
+    /**
+     * Get the formatted year in "YYYY年" format.
+     * 年を「YYYY年」形式で取得するアクセサ
+     * Bladeで $attendance->formatted_year のようにアクセスできます。
+     *
+     * @return string
+     */
+    public function getFormattedYearAttribute(): string
+    {
+        return $this->date ? $this->date->format('Y年') : '';
+    }
+
+    /**
+     * Get the formatted month and day in "MM月DD日" format.
+     * 月日を「MM月DD日」形式で取得するアクセサ
+     * Bladeで $attendance->formatted_month_day のようにアクセスできます。
+     *
+     * @return string
+     */
+    public function getFormattedMonthDayAttribute(): string
+    {
+        return $this->date ? $this->date->format('m月d日') : '';
     }
 
     /**
@@ -129,8 +149,6 @@ class Attendance extends Model
      */
     public function getFormattedCheckInTimeAttribute()
     {
-        // check_in_time属性がCarbonインスタンスであることを前提とする
-        // 存在しない場合は空文字列を返す
         return $this->check_in_time ? $this->check_in_time->format('H:i') : '';
     }
 
@@ -143,26 +161,31 @@ class Attendance extends Model
      */
     public function getFormattedCheckOutTimeAttribute()
     {
-        // check_out_time属性がCarbonインスタンスであることを前提とする
-        // 存在しない場合は空文字列を返す
         return $this->check_out_time ? $this->check_out_time->format('H:i') : '';
     }
 
     /**
      * Get the formatted total break time.
-     * 合計休憩時間を「時:分」形式で取得するアクセサ
+     * 合計休憩時間を「H:MM」形式で取得するアクセサ
      * Bladeで $attendance->formatted_break_time のようにアクセスできます。
+     *
+     * @return string
      */
-    public function getFormattedBreakTimeAttribute()
+    public function getFormattedBreakTimeAttribute(): string
     {
-        // total_break_time が存在しない、またはnullの場合は空文字列を返す
-        if (is_null($this->total_break_time)) {
+        // break_time が NULL の場合は空白を返す
+        if ($this->break_time === null) {
             return '';
         }
+        // break_time が 0 の場合は '0:00' を返す
+        if ($this->break_time === 0) {
+            return '0:00';
+        }
 
-        $totalSeconds = $this->total_break_time;
-        $hours = floor($totalSeconds / 3600);
-        $minutes = floor(($totalSeconds % 3600) / 60);
+        $hours = floor($this->break_time / 3600);
+        $minutes = floor(($this->break_time % 3600) / 60);
+        // 秒は表示しないため削除
+        // $seconds = $this->break_time % 60;
 
         // 時は先頭ゼロなし、分は2桁表示でフォーマット
         return sprintf('%d:%02d', $hours, $minutes);
@@ -170,21 +193,73 @@ class Attendance extends Model
 
     /**
      * Get the formatted total working time.
-     * 合計勤務時間を「時:分」形式で取得するアクセサ
+     * 合計勤務時間を「H:MM」形式で取得するアクセサ
      * Bladeで $attendance->formatted_working_time のようにアクセスできます。
+     *
+     * @return string
      */
-    public function getFormattedWorkingTimeAttribute()
+    public function getFormattedWorkingTimeAttribute(): string
     {
-        // total_working_time が存在しない、またはnullの場合は空文字列を返す
-        if (is_null($this->total_working_time)) {
+        // working_time が NULL の場合は空白を返す
+        if ($this->working_time === null) {
             return '';
         }
+        // working_time が 0 の場合は '0:00' を返す
+        if ($this->working_time === 0) {
+            return '0:00';
+        }
 
-        $totalSeconds = $this->total_working_time;
-        $hours = floor($totalSeconds / 3600);
-        $minutes = floor(($totalSeconds % 3600) / 60);
+        $hours = floor($this->working_time / 3600);
+        $minutes = floor(($this->working_time % 3600) / 60);
+        // 秒は表示しないため削除
+        // $seconds = $this->working_time % 60;
 
         // 時は先頭ゼロなし、分は2桁表示でフォーマット
         return sprintf('%d:%02d', $hours, $minutes);
+    }
+
+    /**
+     * 勤怠レコードがその日に完了しているか（出勤・退勤が揃っているか）を判断
+     *
+     * @return bool
+     */
+    public function isCompleted(): bool
+    {
+        return $this->check_in_time !== null && $this->check_out_time !== null;
+    }
+
+    /**
+     * Calculate and update the total break time from associated BreakTime records.
+     * 関連するBreakTimeレコードから合計休憩時間を計算し、Attendanceモデルのbreak_timeを更新します。
+     *
+     * @return void
+     */
+    public function calculateAndSaveTotalBreakTime(): void
+    {
+        $totalBreakSeconds = 0;
+        // 関連するbreakTimesを確実にロード
+        $this->loadMissing('breakTimes'); 
+
+        // Log::info("DEBUG: Calculating total break time for Attendance ID: {$this->id}"); // この行を削除
+
+        foreach ($this->breakTimes as $breakTime) {
+            if ($breakTime->break_start_time && $breakTime->break_end_time) {
+                $duration = $breakTime->break_start_time->diffInSeconds($breakTime->break_end_time);
+                $totalBreakSeconds += $duration;
+                // Log::info("DEBUG:   BreakTime ID: {$breakTime->id}, Start: {$breakTime->break_start_time->format('H:i:s')}, End: {$breakTime->break_end_time->format('H:i:s')}, Duration: {$duration} seconds"); // この行を削除
+            } else {
+                // Log::warning("DEBUG:   BreakTime ID: {$breakTime->id} has null start or end time. Skipping calculation."); // この行を削除
+            }
+        }
+        // Log::info("DEBUG:   Calculated total break seconds for Attendance ID {$this->id}: {$totalBreakSeconds}"); // この行を削除
+
+        // break_timeが変更された場合にのみ保存
+        if ($this->break_time !== $totalBreakSeconds) {
+            $this->break_time = $totalBreakSeconds;
+            $this->save();
+            // Log::info("DEBUG:   Attendance ID: {$this->id} break_time updated and saved to DB: {$this->break_time}"); // この行を削除
+        } else {
+            // Log::info("DEBUG:   Attendance ID: {$this->id} break_time is unchanged ({$this->break_time}), no save needed."); // この行を削除
+        }
     }
 }

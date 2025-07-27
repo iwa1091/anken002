@@ -60,7 +60,7 @@ class CorrectionRequestsTableSeeder extends Seeder
         CorrectionRequest::create([
             'attendance_id' => $attendance1->id,
             'user_id' => $user1->id,
-            'type' => '打刻ミス',
+            // 'type' => '打刻ミス', // ★この行を削除またはコメントアウト★
             // 修正: CarbonオブジェクトのtoDateString()を使用して日付部分のみを取得
             'requested_check_in_time' => Carbon::parse($attendance1->date->toDateString() . ' 09:00:00'), // 9:00 に修正希望
             'requested_check_out_time' => Carbon::parse($attendance1->date->toDateString() . ' 18:00:00'), // 18:00 に修正希望
@@ -75,7 +75,7 @@ class CorrectionRequestsTableSeeder extends Seeder
         CorrectionRequest::create([
             'attendance_id' => $attendance2->id,
             'user_id' => $user2->id,
-            'type' => '休憩時間修正',
+            // 'type' => '休憩時間修正', // ★この行を削除またはコメントアウト★
             'requested_check_in_time' => $attendance2->check_in_time, // 変更なし
             'requested_check_out_time' => $attendance2->check_out_time, // 変更なし
             'requested_breaks' => [ // 休憩をJSON配列で指定
@@ -90,7 +90,7 @@ class CorrectionRequestsTableSeeder extends Seeder
         CorrectionRequest::create([
             'attendance_id' => $attendance1->id,
             'user_id' => $user1->id,
-            'type' => '退勤打刻修正',
+            // 'type' => '退勤打刻修正', // ★この行を削除またはコメントアウト★
             'requested_check_in_time' => $attendance1->check_in_time,
             // 修正: CarbonオブジェクトのtoDateString()を使用して日付部分のみを取得
             'requested_check_out_time' => Carbon::parse($attendance1->date->toDateString() . ' 20:00:00'), // 20:00 に修正希望

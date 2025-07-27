@@ -17,7 +17,13 @@ return new class extends Migration
             $table->string('email')->unique(); // メールアドレス（ユニーク）
             $table->timestamp('email_verified_at')->nullable(); // メール認証日時
             $table->string('password'); // パスワード
-            $table->foreignId('role_id')->constrained()->onDelete('cascade'); // rolesテーブルとの外部キー制約
+
+            // ★修正点1: nullable() を追加し、ロールが未設定でもユーザーを作成できるようにする
+            // ★修正点2: onDelete('cascade') を onDelete('set null') に変更
+            //          これにより、ロールが削除されても、関連するユーザーは削除されず、
+            //          role_id が NULL に設定されるようになります。
+            $table->foreignId('role_id')->nullable()->constrained()->onDelete('set null');
+
             $table->rememberToken(); // remember_token 用
             $table->timestamps(); // created_at, updated_at
         });

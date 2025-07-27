@@ -23,21 +23,44 @@
             @php
                 use Illuminate\Support\Facades\Auth; // Authファサードを使用
                 use Illuminate\Support\Facades\Route; // Routeファサードを使用
+
                 $currentRouteName = Route::currentRouteName(); // 現在のルート名を取得
+            @endphp
+            <!-- DEBUG: Current Route Name: {{ $currentRouteName }} -->
+
+            @php
                 // ナビゲーションを非表示にする認証関連ルートのリスト
                 // 管理者ログイン画面ではヘッダーを表示しないため、ここに追加
                 $excludedRoutes = [
                     'admin.login',
                 ];
             @endphp
+            <!-- DEBUG: Excluded Routes: {{ implode(', ', $excludedRoutes) }} -->
+
             {{-- 現在のルートが除外リストに含まれていない場合にナビゲーションを表示 --}}
             @if (!in_array($currentRouteName, $excludedRoutes))
+                <!-- DEBUG: Not in excluded routes. Checking admin authentication... -->
+                <!-- DEBUG: Admin login status: {{ Auth::guard('admin')->check() ? 'true' : 'false' }} -->
+
                 <nav class="header__nav">
                     <ul class="header__list">
                         @auth('admin') {{-- 管理者ガードで認証している場合のみメニューを表示 --}}
+                            <!-- DEBUG: Admin authenticated. Attempting to get user data... -->
+                            @php
+                                $adminUser = Auth::guard('admin')->user();
+                                $adminUserName = $adminUser ? $adminUser->name : 'NULL';
+                                $adminUserRoleName = '不明なロール'; // デフォルト値
+
+                                if ($adminUser && $adminUser->role) {
+                                    $adminUserRoleName = $adminUser->role->name;
+                                }
+                            @endphp
+                            <!-- DEBUG: Admin User: {{ $adminUserName }} -->
+                            <!-- DEBUG: Admin User Role Name: {{ $adminUserRoleName }} -->
+
                             {{-- 管理者専用画面メニュー --}}
                             <li class="header__list-item">
-                                <a href="{{ route('admin.dashboard') }}" class="header__form--mypage">勤怠一覧</a>
+                                <a href="{{ route('admin.attendance.list') }}" class="header__form--mypage">勤怠一覧</a>
                             </li>
                             <li class="header__list-item">
                                 <a href="{{ route('admin.staff.list') }}" class="header__form--list">スタッフ一覧</a>

@@ -4,9 +4,11 @@ namespace App\Http\Controllers;
 
 use App\Models\CorrectionRequest;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth; // 認証ユーザーのIDを取得するために使用
+use Illuminate\Support\Facades\Auth; // 認証ユーザーの確認のために使用
 use Illuminate\Support\Facades\DB; // トランザクション用
 use App\Http\Requests\CorrectionRequestStoreRequest; // 新しく作成するForm Request
+use Illuminate\Support\Facades\Log; // Logファサードをインポート
+use Illuminate\Validation\ValidationException; // ValidationExceptionをインポート
 
 class ApplicationController extends Controller
 {
@@ -73,6 +75,9 @@ class ApplicationController extends Controller
      */
     public function storeCorrectionRequest(CorrectionRequestStoreRequest $request, int $attendance_id)
     {
+        // メソッド到達ログ
+        Log::debug('storeCorrectionRequest method reached for attendance_id: ' . $attendance_id);
+
         // ログイン中のユーザーIDを取得
         $userId = Auth::id();
 
@@ -84,33 +89,43 @@ class ApplicationController extends Controller
 
         if ($existingPendingRequest) {
             // 既に承認待ちの申請がある場合、エラーメッセージと共にリダイレクト
+            Log::warning('storeCorrectionRequest: Existing pending request found for attendance_id ' . $attendance_id . ' by user ' . $userId);
             return back()->withErrors(['application_error' => 'この勤怠には既に承認待ちの修正申請があります。'])
                          ->withInput();
         }
 
+        // ★★★ 以下のバリデーションエラーのデバッグログブロックを削除しました ★★★
+        // if ($request->fails()) {
+        //     Log::error('storeCorrectionRequest: Validation failed!', $request->errors()->toArray());
+        // }
+        // ★★★ ここまで削除 ★★★
+
         try {
             DB::transaction(function () use ($request, $attendance_id, $userId) {
-                // モデルの$castsで自動的に処理されるため、json_encodeは不要
-                // また、カラム名を'requested_breaks'、タイムカラム、理由カラムをモデルに合わせて修正
+                // ★★★ ここからデバッグログを追加 ★★★
+                Log::debug('storeCorrectionRequest: Validated request data', $request->validated());
+                Log::debug('storeCorrectionRequest: Type of requested_breaks: ' . gettype($request->input('requested_breaks')));
+                if (is_array($request->input('requested_breaks'))) {
+                    Log::debug('storeCorrectionRequest: requested_breaks content: ' . json_encode($request->input('requested_breaks')));
+                }
+                // ★★★ ここまでデバッグログを追加 ★★★
+
                 CorrectionRequest::create([
                     'user_id' => $userId,
                     'attendance_id' => $attendance_id,
                     'requested_check_in_time' => $request->input('requested_check_in_time'),
                     'requested_check_out_time' => $request->input('requested_check_out_time'),
-                    'requested_breaks' => $request->input('requested_breaks'), // カラム名を修正し、json_encodeを削除
-                    'reason' => $request->input('reason'), // カラム名を修正
+                    'requested_breaks' => $request->input('requested_breaks'),
+                    'reason' => $request->input('reason'),
                     'status' => 'pending', // 承認待ち
-                    'type' => 'attendance_correction', // ★★★ この行を追加しました ★★★
                 ]);
             });
             // 修正申請が成功した場合
             return redirect()->route('stamp_correction_request.list')->with('success', '修正申請を提出しました。');
 
         } catch (\Exception $e) {
-            // dd('Caught exception: ' . $e->getMessage()); // ★★★ 修正が完了したらこの行はコメントアウトまたは削除してください ★★★
             // エラーハンドリング
-            // ログにエラーを記録することも推奨されます
-            // \Log::error('Failed to store correction request: ' . $e->getMessage(), ['attendance_id' => $attendance_id, 'user_id' => $userId]);
+            Log::error('Failed to store correction request: ' . $e->getMessage(), ['attendance_id' => $attendance_id, 'user_id' => $userId, 'request_data' => $request->all()]);
             return back()->withErrors(['application_error' => '修正申請の提出に失敗しました。時間をおいて再度お試しください。'])
                          ->withInput();
         }

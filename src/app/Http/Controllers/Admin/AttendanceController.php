@@ -3,155 +3,163 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\Attendance;
-use App\Models\User; // スタッフの勤怠を検索するためにUserモデルが必要になる場合がある
-use App\Models\BreakTime; // 休憩時間の計算や更新のために必要
-use App\Http\Requests\Admin\AdminAttendanceUpdateRequest; // 管理者による勤怠更新リクエスト
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
-use Carbon\Carbon;
+use Illuminate\Http\Request; // Requestは引き続き使用しますが、updateメソッドのバリデーションはFormRequestに委譲
+use Carbon\Carbon; // Carbonライブラリをインポート
+use App\Models\Attendance; // Attendanceモデルをインポート
+use App\Models\User; // Userモデルをインポート（Attendanceとのリレーションシップのため）
+use App\Models\BreakTime; // BreakTimeモデルをインポート
+use App\Http\Requests\Admin\AdminAttendanceUpdateRequest; // 新しいForm Requestをインポート
+use Illuminate\Support\Facades\DB; // トランザクションのためにDBファサードをインポート
 
+// クラス名をファイル名に合わせて AttendanceController に変更
 class AttendanceController extends Controller
 {
     /**
-     * Display a listing of daily attendance records for administrators.
-     * 管理者向けの日次勤怠一覧を表示します。
+     * 管理者向けの勤怠一覧を表示します。
+     * 指定された日付の勤怠データを取得し、ビューに渡します。
      *
      * @param  \Illuminate\Http\Request  $request
-     * @param  string|null  $date (YYYY-MM-DD形式、例: 2023-04-15)
+     * @param  string|null  $date  表示する日付 (YYYY-MM-DD形式)。指定がない場合は今日の日付。
      * @return \Illuminate\View\View
      */
-    public function listDaily(Request $request, ?string $date = null)
+    public function list(Request $request, $date = null)
     {
-        // 表示対象日を設定
-        $targetDate = $date ? Carbon::parse($date)->toDateString() : Carbon::today()->toDateString();
+        // URLパラメータから日付を取得し、Carbonインスタンスに変換。
+        // 指定がない場合は今日の日付を使用。
+        $currentDate = $date ? Carbon::parse($date) : Carbon::today();
 
-        // 選択された日の勤怠データを取得（休憩時間とユーザーもEager Load）
-        $attendances = Attendance::with(['user.role', 'breakTimes'])
-            ->where('date', $targetDate)
-            ->orderBy('check_in_time', 'asc') // 出勤時刻順にソート
-            ->paginate(15); // 1ページあたり15件表示
+        // ビューに渡すための日付関連の変数
+        // Bladeファイルが $currentMonth, $prevDay, $nextDay を期待しているため、これらを準備
+        $currentMonth = $currentDate->copy(); // 現在の日付（タイトル表示にも使用）
+        $prevDay = $currentDate->copy()->subDay(); // 前日
+        $nextDay = $currentDate->copy()->addDay(); // 翌日
 
-        // 各勤怠レコードの合計休憩時間を計算
-        $attendances->getCollection()->transform(function ($attendance) {
-            $totalBreakMinutes = 0;
-            foreach ($attendance->breakTimes as $breakTime) {
-                if ($breakTime->break_start_time && $breakTime->break_end_time) {
-                    $totalBreakMinutes += $breakTime->break_start_time->diffInMinutes($breakTime->break_end_time);
-                }
-            }
-            // Carbon期間オブジェクトを作成し、H:i形式にフォーマット
-            $attendance->total_break_time_formatted = Carbon::parse('00:00:00')->addMinutes($totalBreakMinutes)->format('H:i');
+        // 指定された日付の勤怠データを取得
+        // 'user' と 'breakTimes' リレーションシップをEager Loadして、N+1問題を回避
+        $attendances = Attendance::with(['user', 'breakTimes'])
+            ->whereDate('check_in_time', $currentDate->toDateString()) // check_in_time の日付部分でフィルタ
+            ->orderBy('check_in_time', 'asc') // 出勤時刻で昇順ソート
+            ->paginate(10); // 1ページあたり10件でページネーション
 
-            // 勤務時間の計算 (出勤〜退勤) - 休憩時間
-            if ($attendance->check_in_time && $attendance->check_out_time) {
-                $workMinutes = $attendance->check_in_time->diffInMinutes($attendance->check_out_time);
-                $actualWorkMinutes = $workMinutes - $totalBreakMinutes;
-                $attendance->actual_work_time_formatted = Carbon::parse('00:00:00')->addMinutes($actualWorkMinutes)->format('H:i');
-            } else {
-                $attendance->actual_work_time_formatted = null;
-            }
-
+        // 各勤怠レコードの合計休憩時間を計算してセット
+        $attendances->transform(function ($attendance) {
+            $attendance->calculateAndSaveTotalBreakTime(); // Attendanceモデルのヘルパーメソッドを呼び出し
             return $attendance;
         });
 
-        // 日付の前後ナビゲーション用データ
-        $previousDay = Carbon::parse($targetDate)->subDay()->format('Y-m-d');
-        $nextDay = Carbon::parse($targetDate)->addDay()->format('Y-m-d');
-
-        return view('admin.attendance.list', compact(
-            'attendances',
-            'targetDate',
-            'previousDay',
-            'nextDay'
-        ));
+        // 取得した勤怠データと日付関連の変数をビューに渡して表示
+        // $prevMonth, $nextMonth ではなく $prevDay, $nextDay を渡す
+        return view('admin.attendance.list', compact('attendances', 'currentMonth', 'prevDay', 'nextDay'));
     }
 
     /**
-     * Display the specified attendance record details for administrators.
-     * 指定された勤怠データ（管理者向け）の詳細を表示します。
+     * 管理者向けの勤怠詳細を表示します。
      *
-     * @param  int  $id
-     * @return \Illuminate\View\View|\Illuminate\Http\RedirectResponse
+     * @param  int  $id 勤怠ID
+     * @return \Illuminate\View\View
      */
-    public function show(int $id)
+    public function show($id)
     {
-        // 指定されたIDの勤怠レコードを、ユーザーと休憩時間もEager Loadして取得
-        $attendance = Attendance::with(['user.role', 'breakTimes'])
-            ->findOrFail($id);
+        // 勤怠データをIDで検索し、ユーザー情報と休憩時間をEager Load
+        $attendance = Attendance::with(['user', 'breakTimes'])->findOrFail($id);
 
-        // 合計休憩時間を計算
-        $totalBreakMinutes = 0;
-        foreach ($attendance->breakTimes as $breakTime) {
-            if ($breakTime->break_start_time && $breakTime->break_end_time) {
-                $totalBreakMinutes += $breakTime->break_start_time->diffInMinutes($breakTime->break_end_time);
-            }
-        }
-        $attendance->total_break_time_formatted = Carbon::parse('00:00:00')->addMinutes($totalBreakMinutes)->format('H:i');
-
-        // 勤務時間の計算
-        if ($attendance->check_in_time && $attendance->check_out_time) {
-            $workMinutes = $attendance->check_in_time->diffInMinutes($attendance->check_out_time);
-            $actualWorkMinutes = $workMinutes - $totalBreakMinutes;
-            $attendance->actual_work_time_formatted = Carbon::parse('00:00:00')->addMinutes($actualWorkMinutes)->format('H:i');
-        } else {
-            $attendance->actual_work_time_formatted = null;
-        }
+        // 詳細表示時にも合計休憩時間を計算してセット
+        $attendance->calculateAndSaveTotalBreakTime();
 
         return view('admin.attendance.show', compact('attendance'));
     }
 
     /**
-     * Update the specified attendance record.
-     * 指定された勤怠データを更新します。
+     * 勤怠編集フォームを表示します。
+     *
+     * @param  int  $id 勤怠ID
+     * @return \Illuminate\View\View
+     */
+    public function edit($id)
+    {
+        $attendance = Attendance::with(['user', 'breakTimes'])->findOrFail($id);
+        return view('admin.attendance.edit', compact('attendance'));
+    }
+
+    /**
+     * 勤怠データを更新します。
      *
      * @param  \App\Http\Requests\Admin\AdminAttendanceUpdateRequest  $request
-     * @param  int  $id
+     * @param  int  $id 勤怠ID
      * @return \Illuminate\Http\RedirectResponse
      */
-    public function update(AdminAttendanceUpdateRequest $request, int $id)
+    public function update(AdminAttendanceUpdateRequest $request, $id) // ★修正: Request $request を AdminAttendanceUpdateRequest $request に変更 ★
     {
-        $attendance = Attendance::findOrFail($id);
+        $attendance = Attendance::with('breakTimes')->findOrFail($id); // breakTimesもロードしておく
 
-        DB::beginTransaction();
+        // バリデーションはAdminAttendanceUpdateRequestによって自動的に行われるため、ここでは不要
+        // $request->validate([...]); // ★削除★
+
+        DB::beginTransaction(); // トランザクション開始
         try {
-            // 勤怠レコードを更新
-            $attendance->check_in_time = $request->check_in_time ?
-                Carbon::parse($attendance->date->toDateString() . ' ' . $request->check_in_time) : null;
-            $attendance->check_out_time = $request->check_out_time ?
-                Carbon::parse($attendance->date->toDateString() . ' ' . $request->check_out_time) : null;
-            $attendance->remarks = $request->remarks;
-            // status の更新は、手動更新時にも自動調整ロジックを検討するか、別途ルールを設ける
-            // 例: check_out_time があれば '退勤済'、check_in_time があれば '出勤中'
-            if ($attendance->check_out_time) {
-                $attendance->status = '退勤済';
-            } elseif ($attendance->check_in_time) {
-                $attendance->status = '出勤中';
-            } else {
-                $attendance->status = '勤務外';
-            }
+            // 勤怠の日付を取得（check_in_timeから日付部分を取得するのが安全）
+            $attendanceDate = $attendance->date->toDateString();
 
-            $attendance->save();
+            // 出勤・退勤時刻の更新
+            $checkIn = $request->input('check_in_time') ? Carbon::parse($attendanceDate . ' ' . $request->input('check_in_time')) : null;
+            $checkOut = $request->input('check_out_time') ? Carbon::parse($attendanceDate . ' ' . $request->input('check_out_time')) : null;
 
-            // 休憩時間の更新（既存を削除し、新しいものを挿入）
-            $attendance->breakTimes()->delete(); // 既存の休憩時間を全て削除
+            // 備考の更新
+            $remarks = $request->input('remarks');
 
-            if (!empty($request->breaks)) {
-                foreach ($request->breaks as $break) {
-                    BreakTime::create([
-                        'attendance_id' => $attendance->id,
-                        'break_start_time' => Carbon::parse($attendance->date->toDateString() . ' ' . $break['start']),
-                        'break_end_time' => Carbon::parse($attendance->date->toDateString() . ' ' . $break['end']),
-                    ]);
+            // Attendanceモデルの更新（break_timeとworking_timeは後で再計算）
+            $attendance->check_in_time = $checkIn;
+            $attendance->check_out_time = $checkOut;
+            $attendance->remarks = $remarks;
+            $attendance->save(); // いったん保存してIDを確定（もし新規作成の場合）
+
+            // 休憩時間の更新
+            $requestedBreaks = $request->input('breaks');
+
+            // 既存の休憩時間を全て削除
+            $attendance->breakTimes()->delete();
+
+            // 新しい休憩時間を挿入
+            if (!empty($requestedBreaks) && is_array($requestedBreaks)) {
+                foreach ($requestedBreaks as $break) {
+                    $breakStartTime = $break['start'] ?? null;
+                    $breakEndTime = $break['end'] ?? null;
+
+                    // 両方の時刻が入力されている場合のみBreakTimeレコードを作成
+                    if (!empty($breakStartTime) && !empty($breakEndTime)) {
+                        BreakTime::create([
+                            'attendance_id' => $attendance->id,
+                            'break_start_time' => Carbon::parse($attendanceDate . ' ' . $breakStartTime),
+                            'break_end_time' => Carbon::parse($attendanceDate . ' ' . $breakEndTime),
+                        ]);
+                    }
                 }
             }
 
-            DB::commit();
-            return redirect()->route('admin.attendance.show', $attendance->id)->with('success', '勤怠データが更新されました。');
+            // 勤怠データ更新後、合計休憩時間と勤務時間を再計算して保存
+            // calculateAndSaveTotalBreakTime()メソッド内でsave()が呼ばれるため、ここでは不要
+            $attendance->calculateAndSaveTotalBreakTime();
+
+            DB::commit(); // トランザクションコミット
+
+            return redirect()->route('admin.attendance.show', $attendance->id)->with('success', '勤怠データが正常に更新されました。');
         } catch (\Exception $e) {
-            DB::rollBack();
-            return redirect()->back()->with('error', '勤怠データの更新に失敗しました: ' . $e->getMessage());
+            DB::rollBack(); // エラーが発生した場合はロールバック
+            return redirect()->back()->with('error', '勤怠データの更新中にエラーが発生しました: ' . $e->getMessage())->withInput();
         }
+    }
+
+    /**
+     * 勤怠データを削除します。
+     *
+     * @param  int  $id 勤怠ID
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function delete($id)
+    {
+        $attendance = Attendance::findOrFail($id);
+        $attendance->delete();
+
+        return redirect()->route('admin.attendance.list')->with('success', '勤怠データが正常に削除されました。');
     }
 }

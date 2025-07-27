@@ -70,12 +70,12 @@ return [
             'driver' => 'eloquent',
             'model' => App\Models\User::class,
         ],
-        // ★ここから追加★
+        // ★ここから修正★
         'admins' => [ // 管理者用プロバイダ（adminsガードで指定した名前と同じに）
             'driver' => 'eloquent',
-            'model' => App\Models\Admin::class, // あなたの管理者モデルのクラスパス
+            'model' => App\Models\User::class, // ★★★ ここを App\Models\User::class に変更しました ★★★
         ],
-        // ★ここまで追加★
+        // ★ここまで修正★
 
         // 'users' => [
         //     'driver' => 'database',

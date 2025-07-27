@@ -4,7 +4,8 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Carbon\Carbon; // ★追加: Carbonを使用するためにこの行を追加
+use Carbon\Carbon; // Carbonを使用するためにこの行を追加
+use Illuminate\Support\Facades\Log; // Logファサードをインポート
 
 class CorrectionRequest extends Model
 {
@@ -19,14 +20,13 @@ class CorrectionRequest extends Model
     protected $fillable = [
         'attendance_id',
         'user_id',
-        // 'type', // この行を削除
         'requested_check_in_time',
         'requested_check_out_time',
         'requested_breaks', // JSON形式で保存
         'reason',
         'status',
-        'approved_by', // ★追加: 承認者ID
-        'approved_at', // ★追加: 承認日時
+        'approved_by', // 承認者ID
+        'approved_at', // 承認日時
     ];
 
     /**
@@ -41,7 +41,7 @@ class CorrectionRequest extends Model
         'requested_check_out_time' => 'datetime',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
-        'approved_at' => 'datetime', // ★追加: approved_atもdatetimeにキャスト
+        'approved_at' => 'datetime', // approved_atもdatetimeにキャスト
     ];
 
     /**
@@ -77,25 +77,52 @@ class CorrectionRequest extends Model
     }
 
     /**
-     * 申請の種類を日本語で取得するアクセサ
-     * このメソッドは不要になるため、完全に削除
+     * Get the formatted requested check-in time in "HH:MM" format.
+     * 修正希望出勤時刻を「HH:MM」形式で取得するアクセサ。
+     * nullの場合は「00:00」を返します。
      *
-     * public function getFormattedTypeAttribute()
-     * {
-     * switch ($this->type) {
-     * case 'punch_error':
-     * return '打刻ミス';
-     * case 'break_time_correction':
-     * return '休憩時間修正';
-     * case 'check_in_date_correction':
-     * return '出勤日修正';
-     * case 'check_out_date_correction':
-     * return '退勤日修正';
-     * case 'other':
-     * return 'その他';
-     * default:
-     * return $this->type;
-     * }
-     * }
+     * @return string
      */
+    public function getFormattedRequestedCheckInTimeAttribute(): string
+    {
+        $formattedTime = $this->requested_check_in_time ? $this->requested_check_in_time->format('H:i') : '00:00';
+        return $formattedTime;
+    }
+
+    /**
+     * Get the formatted requested check-out time in "HH:MM" format.
+     * 修正希望退勤時刻を「HH:MM」形式で取得するアクセサ。
+     * nullの場合は「00:00」を返します。
+     *
+     * @return string
+     */
+    public function getFormattedRequestedCheckOutTimeAttribute(): string
+    {
+        $formattedTime = $this->requested_check_out_time ? $this->requested_check_out_time->format('H:i') : '00:00';
+        return $formattedTime;
+    }
+
+    /**
+     * Get the formatted attendance year in "YYYY年" format.
+     * 関連する勤怠の年を「YYYY年」形式で取得するアクセサ。
+     *
+     * @return string
+     */
+    public function getFormattedAttendanceYearAttribute(): string
+    {
+        // attendanceリレーションが存在し、かつそのdateプロパティが存在する場合にフォーマット
+        return $this->attendance && $this->attendance->date ? $this->attendance->date->format('Y年') : 'N/A';
+    }
+
+    /**
+     * Get the formatted attendance month and day in "MM月DD日" format.
+     * 関連する勤怠の月日を「MM月DD日」形式で取得するアクセサ。
+     *
+     * @return string
+     */
+    public function getFormattedAttendanceMonthDayAttribute(): string
+    {
+        // attendanceリレーションが存在し、かつそのdateプロパティが存在する場合にフォーマット
+        return $this->attendance && $this->attendance->date ? $this->attendance->date->format('m月d日') : 'N/A';
+    }
 }

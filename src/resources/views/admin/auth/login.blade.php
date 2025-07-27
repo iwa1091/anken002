@@ -4,7 +4,7 @@
 
 @section('css')
     {{-- カスタムCSSファイルを読み込み --}}
-    <link href="{{ asset('css/admin-log.css') }}" rel="stylesheet">
+    <link href="{{ asset('css/admin-login.css') }}" rel="stylesheet">
 @endsection
 
 @section('content')
@@ -18,7 +18,7 @@
             </div>
         @endif
 
-        <form method="POST" action="{{ route('admin.login') }}">
+        <form method="POST" action="{{ route('admin.login') }}" novalidate>
             @csrf
 
             <div class="form-group">
@@ -37,7 +37,7 @@
                 @enderror
             </div>
 
-            <button type="submit" class="login-button">ログイン</button>
+            <button type="submit" class="login-button">管理者でログインする</button>
         </form>
     </div>
 @endsection

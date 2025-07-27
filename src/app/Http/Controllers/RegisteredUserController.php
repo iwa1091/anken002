@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 // use App\Models\Role; // storeメソッドを削除するため不要
 // use Illuminate\Support\Facades\Hash; // storeメソッドを削除するため不要
 // use Illuminate\Auth\Events\Registered; // storeメソッドを削除するため不要
+use App\Http\Requests\RegisterUserRequest; // RegisterUserRequestはcreateメソッドで使用されていないため、もしcreateメソッドでバリデーションを行わないなら不要です
 
 class RegisteredUserController extends Controller
 {

@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    {{-- ページタイトルを子ビューから設定し、デフォルトは'anken01'とする --}}
+    {{-- ページタイトルを子ビューから設定し、デフォルトは'anken02'とする --}}
     <title>@yield('title', 'anken01')</title>
     <link rel="stylesheet" href="{{ asset('css/sanitize.css') }}">
     <link rel="stylesheet" href="{{ asset('css/app.css') }}">
@@ -22,6 +22,7 @@
             </div>
             @php
                 use Illuminate\Support\Facades\Auth; // Authファサードを使用
+                use Illuminate\Support\Facades\Route; // Routeファサードを使用
                 $currentRouteName = Route::currentRouteName(); // 現在のルート名を取得
                 // ナビゲーションを非表示にする認証関連ルートのリスト
                 $excludedRoutes = [
@@ -38,7 +39,8 @@
                             @if (Auth::user()->isAdmin()) {{-- 管理者ユーザーの場合 --}}
                                 <!-- 管理者専用画面メニュー -->
                                 <li class="header__list-item">
-                                    <a href="{{ route('admin.dashboard') }}" class="header__form--mypage">勤怠一覧</a>
+                                    {{-- admin.dashboard を admin.attendance.list に修正 --}}
+                                    <a href="{{ route('admin.attendance.list') }}" class="header__form--mypage">勤怠一覧</a>
                                 </li>
                                 <li class="header__list-item">
                                     <a href="{{ route('admin.staff.list') }}" class="header__form--list">スタッフ一覧</a>
