@@ -31,7 +31,7 @@
             <div class="stamp-buttons single-button">
                 <form action="{{ route('attendance.checkin') }}" method="POST" class="stamp-form">
                     @csrf
-                    <button type="submit" class="stamp-button checkin-form">
+                    <button type="submit" class="stamp-button checkinout-form">
                         出勤
                     </button>
                 </form>
@@ -41,13 +41,13 @@
             <div class="stamp-buttons two-columns">
                 <form action="{{ route('attendance.checkout') }}" method="POST" class="stamp-form">
                     @csrf
-                    <button type="submit" class="stamp-button ">
+                    <button type="submit" class="stamp-button checkinout-form">
                         退勤
                     </button>
                 </form>
-                <form action="{{ route('attendance.breakin') }}" method="POST" class="stamp-form">
+                <form action="{{ route('attendance.breakin') }}" method="POST" class="stamp-form ">
                     @csrf
-                    <button type="submit" class="stamp-button">
+                    <button type="submit" class="stamp-button breakinout-form">
                         休憩入
                     </button>
                 </form>
@@ -57,7 +57,7 @@
             <div class="stamp-buttons single-button">
                 <form action="{{ route('attendance.breakout') }}" method="POST" class="stamp-form">
                     @csrf
-                    <button type="submit" class="stamp-button">
+                    <button type="submit" class="stamp-button breakinout-form">
                         休憩戻
                     </button>
                 </form>

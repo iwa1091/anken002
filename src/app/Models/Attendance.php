@@ -137,7 +137,7 @@ class Attendance extends Model
      */
     public function getFormattedMonthDayAttribute(): string
     {
-        return $this->date ? $this->date->format('m月d日') : '';
+        return $this->date ? $this->date->format('n月j日') : '';
     }
 
     /**
@@ -240,26 +240,47 @@ class Attendance extends Model
         // 関連するbreakTimesを確実にロード
         $this->loadMissing('breakTimes'); 
 
-        // Log::info("DEBUG: Calculating total break time for Attendance ID: {$this->id}"); // この行を削除
-
         foreach ($this->breakTimes as $breakTime) {
             if ($breakTime->break_start_time && $breakTime->break_end_time) {
                 $duration = $breakTime->break_start_time->diffInSeconds($breakTime->break_end_time);
                 $totalBreakSeconds += $duration;
-                // Log::info("DEBUG:   BreakTime ID: {$breakTime->id}, Start: {$breakTime->break_start_time->format('H:i:s')}, End: {$breakTime->break_end_time->format('H:i:s')}, Duration: {$duration} seconds"); // この行を削除
-            } else {
-                // Log::warning("DEBUG:   BreakTime ID: {$breakTime->id} has null start or end time. Skipping calculation."); // この行を削除
             }
         }
-        // Log::info("DEBUG:   Calculated total break seconds for Attendance ID {$this->id}: {$totalBreakSeconds}"); // この行を削除
 
         // break_timeが変更された場合にのみ保存
         if ($this->break_time !== $totalBreakSeconds) {
             $this->break_time = $totalBreakSeconds;
             $this->save();
-            // Log::info("DEBUG:   Attendance ID: {$this->id} break_time updated and saved to DB: {$this->break_time}"); // この行を削除
-        } else {
-            // Log::info("DEBUG:   Attendance ID: {$this->id} break_time is unchanged ({$this->break_time}), no save needed."); // この行を削除
+        }
+        
+        // ★追加: 合計休憩時間計算後、合計勤務時間も計算・保存する ★
+        $this->calculateAndSaveTotalWorkingTime();
+    }
+
+    /**
+     * Calculate and update the total working time based on check-in, check-out, and break times.
+     * 出勤、退勤、休憩時間に基づいて合計勤務時間を計算し、Attendanceモデルのworking_timeを更新します。
+     *
+     * @return void
+     */
+    public function calculateAndSaveTotalWorkingTime(): void
+    {
+        $totalWorkingSeconds = 0;
+        if ($this->check_in_time && $this->check_out_time) {
+            $totalWorkingSeconds = $this->check_out_time->diffInSeconds($this->check_in_time);
+            // 休憩時間を減算
+            $totalWorkingSeconds -= $this->break_time ?? 0; // break_timeがnullの場合を考慮
+
+            // 勤務時間が負にならないように調整
+            if ($totalWorkingSeconds < 0) {
+                $totalWorkingSeconds = 0;
+            }
+        }
+
+        // working_timeが変更された場合にのみ保存
+        if ($this->working_time !== $totalWorkingSeconds) {
+            $this->working_time = $totalWorkingSeconds;
+            $this->save();
         }
     }
 }

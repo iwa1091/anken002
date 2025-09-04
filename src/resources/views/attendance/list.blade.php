@@ -18,18 +18,18 @@
         <div class="attendance-list__month-nav">
             {{-- FN024: 「前月」を押下した時に，表示月の前月の情報が表示される --}}
             {{-- $prevMonth はコントローラから渡されるCarbonインスタンスを想定 --}}
-            <a href="{{ route('attendance.list', ['month' => $prevMonth->format('Y-m')]) }}" class="month-nav-link">&lt;－前月</a>
+            <a href="{{ route('attendance.list', ['month' => $prevMonth->format('Y-m')]) }}" class="month-nav-link">← 前月</a>
 
             {{-- FN024: 遷移した際に現在の月が表示される --}}
             {{-- $currentMonth はコントローラから渡されるCarbonインスタンスを想定 --}}
             <span class="attendance-list__current-month">
                 <img src="{{ asset('images/image 1.svg') }}" alt="Calendar Icon" class="month-icon">
-                {{ $currentMonth->format('Y年m月') }}
+                {{ $currentMonth->format('Y/m') }}
             </span>
 
             {{-- FN024: 「翌月」を押下した時に，表示月の翌月の情報が表示される --}}
             {{-- $nextMonth はコントローラから渡されるCarbonインスタンスを想定 --}}
-            <a href="{{ route('attendance.list', ['month' => $nextMonth->format('Y-m')]) }}" class="month-nav-link">翌月－&gt;</a>
+            <a href="{{ route('attendance.list', ['month' => $nextMonth->format('Y-m')]) }}" class="month-nav-link">翌月 →</a>
         </div>
     </div>
 

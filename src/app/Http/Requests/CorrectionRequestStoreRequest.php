@@ -3,99 +3,89 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Support\Facades\Auth; // 認証ユーザーの確認のために使用
-use Carbon\Carbon; // 日付・時刻操作のためにCarbonを使用
+use Illuminate\Support\Facades\Auth;
+use Carbon\Carbon;
+use App\Models\Attendance;
+use Illuminate\Validation\Rule;
 
 class CorrectionRequestStoreRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
-     * リクエストを行う権限があるかどうかを判定します。
+     * 修正申請を行う権限があるか確認
      *
      * @return bool
      */
     public function authorize(): bool
     {
-        // ログイン済みのユーザーのみが修正申請を提出することを許可します。
         return Auth::check();
     }
 
     /**
      * Get the validation rules that apply to the request.
-     * リクエストに適用されるバリデーションルールを取得します。（FN002 バリデーション）
+     * リクエストに適用するバリデーションルールを取得
      *
      * @return array<string, \Illuminate\Contracts\Validation\Rule|array|string>
      */
     public function rules(): array
     {
+        // ルートパラメータからattendance_idを取得
+        $attendanceId = $this->route('attendance_id');
+        $attendance = Attendance::find($attendanceId);
+
+        // 元の勤怠レコードの退勤時刻を取得
+        $originalCheckOutTime = $attendance ? $attendance->check_out_time : null;
+
+        // 希望退勤時刻を優先し、存在しない場合は元の退勤時刻を使用
+        $checkOutTimeForValidation = $this->input('requested_check_out_time') ?? ($originalCheckOutTime ? Carbon::parse($originalCheckOutTime)->format('H:i') : null);
+
         return [
-            'requested_check_in_time' => ['nullable', 'string', 'date_format:H:i'], // 修正希望の出勤時刻 (H:i形式)
-            'requested_check_out_time' => ['nullable', 'string', 'date_format:H:i', 'after_or_equal:requested_check_in_time'], // 修正希望の退勤時刻 (H:i形式)
+            'requested_check_in_time' => [
+                'nullable',
+                'string',
+                'date_format:H:i',
+                'required_without_all:requested_check_out_time,reason'
+            ],
+            'requested_check_out_time' => [
+                'nullable',
+                'string',
+                'date_format:H:i',
+                'after_or_equal:requested_check_in_time',
+                'required_without_all:requested_check_in_time,reason'
+            ],
             'requested_breaks' => [
                 'nullable',
                 'array',
-                // 休憩時間が勤務時間内にあるかをチェックするカスタムバリデーション
-                function ($attribute, $value, $fail) {
-                    $requestedCheckInTime = $this->input('requested_check_in_time');
-                    $requestedCheckOutTime = $this->input('requested_check_out_time');
-
-                    // 出勤・退勤時刻が入力されていない場合、休憩時間の勤務時間内チェックはスキップ
-                    // (出勤・退勤時刻自体のバリデーションは別途行われる)
-                    if (empty($requestedCheckInTime) || empty($requestedCheckOutTime)) {
-                        return;
-                    }
-
-                    try {
-                        $checkInCarbon = Carbon::createFromFormat('H:i', $requestedCheckInTime);
-                        $checkOutCarbon = Carbon::createFromFormat('H:i', $requestedCheckOutTime);
-                    } catch (\Exception $e) {
-                        // 出勤・退勤時刻のフォーマットが不正な場合は、date_formatルールで既にエラーになるため、ここでは何もしない
-                        return;
-                    }
-
-                    foreach ($value as $index => $break) {
-                        $breakStartTime = $break['start'] ?? null;
-                        $breakEndTime = $break['end'] ?? null;
-
-                        // 休憩開始・終了時刻が入力されていない場合は、nullableで許可されるためスキップ
-                        if (empty($breakStartTime) && empty($breakEndTime)) {
-                            continue; // 両方空の場合はスキップ
-                        }
-                        // 片方だけ入力されている場合はエラー
-                        if (empty($breakStartTime) || empty($breakEndTime)) {
-                            $fail('休憩の開始時刻と終了時刻は両方入力するか、両方空にしてください。');
-                            continue;
-                        }
-
-
-                        try {
-                            $breakStartCarbon = Carbon::createFromFormat('H:i', $breakStartTime);
-                            $breakEndCarbon = Carbon::createFromFormat('H:i', $breakEndTime);
-                        } catch (\Exception $e) {
-                            // 休憩時刻のフォーマットが不正な場合は、date_formatルールで既にエラーになる
-                            // ここでは、カスタムメッセージを優先して出すため、フォーマットエラーもまとめてこのメッセージにする場合
-                             $fail('休憩時間が勤務時間外です');
-                            continue;
-                        }
-
-                        // 休憩開始時刻が出勤時刻より前、または休憩終了時刻が退勤時刻より後の場合
-                        if ($breakStartCarbon->lt($checkInCarbon) || $breakEndCarbon->gt($checkOutCarbon)) {
-                            $fail('休憩時間が勤務時間外です');
-                        }
-                    }
-                },
             ],
-            // ★修正: required_with を nullable に変更 ★
-            'requested_breaks.*.start' => ['nullable', 'string', 'date_format:H:i'], // 各休憩開始時刻
-            // ★修正: required_with を nullable に変更 ★
-            'requested_breaks.*.end' => ['nullable', 'string', 'date_format:H:i', 'after:requested_breaks.*.start'], // 各休憩終了時刻
-            'reason' => ['required', 'string', 'max:1000'], // 修正理由
+            'requested_breaks.*.start' => [
+                'nullable',
+                'string',
+                'date_format:H:i',
+                // 休憩開始時刻が入力されている場合、かつ退勤時刻が有効な値の場合のみ検証
+                Rule::when($this->filled('requested_breaks.*.start') && $checkOutTimeForValidation !== null, [
+                    'before_or_equal:' . $checkOutTimeForValidation,
+                ]),
+            ],
+            'requested_breaks.*.end' => [
+                'nullable',
+                'string',
+                'date_format:H:i',
+                Rule::when($this->filled('requested_breaks.*.start') && $this->filled('requested_breaks.*.end') && $checkOutTimeForValidation !== null, [
+                    'after:requested_breaks.*.start',
+                    'before_or_equal:' . $checkOutTimeForValidation,
+                ]),
+            ],
+            'reason' => [
+                'required', 
+                'string', 
+                'max:1000'
+            ],
         ];
     }
 
     /**
      * Get custom attributes for validator errors.
-     * バリデータのエラーメッセージに使用されるカスタム属性名を取得します。
+     * バリデーションエラー用のカスタム属性名を取得
      *
      * @return array<string, string>
      */
@@ -113,34 +103,37 @@ class CorrectionRequestStoreRequest extends FormRequest
 
     /**
      * Get the error messages for the defined validation rules.
-     * 定義されたバリデーションルールに対応するエラーメッセージを取得します。（FN003 エラーメッセージ表示）
+     * 定義されたバリデーションルールに対するエラーメッセージを取得
      *
      * @return array<string, string>
      */
     public function messages(): array
     {
         return [
+            'requested_check_in_time.required_without_all' => '出勤時間、退勤時間、または備考のいずれかを入力してください。',
             'requested_check_in_time.string' => ':attributeは文字列で入力してください。',
             'requested_check_in_time.date_format' => ':attributeはHH:MM形式で入力してください。',
-
-            // FN029-1: 出勤時間もしくは退勤時間が不適切な値です
+            
             'requested_check_out_time.string' => ':attributeは文字列で入力してください。',
             'requested_check_out_time.date_format' => ':attributeはHH:MM形式で入力してください。',
-            'requested_check_out_time.after_or_equal' => '出勤時間もしくは退勤時間が不適切な値です',
+            'requested_check_out_time.after_or_equal' => '退勤時間は出勤時間以降の時刻を入力してください。',
 
-            'requested_breaks.array' => ':attributeは配列で入力してください。', // 通常は表示されない
+            'requested_breaks.array' => ':attributeは配列で入力してください。',
 
-            // ★修正: nullable に変更したため、required_with のメッセージは不要 ★
+            'requested_breaks.*.start.before_or_equal' => '出勤時間もしくは退勤時間が不適切な値です',
             'requested_breaks.*.start.string' => '休憩開始時刻は文字列で入力してください。',
             'requested_breaks.*.start.date_format' => '休憩開始時刻はHH:MM形式で入力してください。',
 
-            // ★修正: nullable に変更したため、required_with のメッセージは不要 ★
+            'requested_breaks.*.end.before_or_equal' => '出勤時間もしくは退勤時間が不適切な値です',
             'requested_breaks.*.end.string' => '休憩終了時刻は文字列で入力してください。',
             'requested_breaks.*.end.date_format' => '休憩終了時刻はHH:MM形式で入力してください。',
             'requested_breaks.*.end.after' => '休憩終了時刻は休憩開始時刻より後の時刻を入力してください。',
 
-            // FN029-3: 備考を記入してください
-            'reason.required' => '備考を記入してください',
+            'reason.required_without_all' => '出勤時間、退勤時間、または備考のいずれかを入力してください。',
+            'reason.string' => ':attributeは文字列で入力してください。',
+            'reason.max' => ':attributeは:max文字以内で入力してください。',
+
+            'reason.required' => '備考を記入してください', // このメッセージは'required_without_all'で置き換えられる可能性あり
             'reason.string' => ':attributeは文字列で入力してください。',
             'reason.max' => ':attributeは:max文字以内で入力してください。',
         ];

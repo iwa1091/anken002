@@ -123,6 +123,6 @@ class CorrectionRequest extends Model
     public function getFormattedAttendanceMonthDayAttribute(): string
     {
         // attendanceリレーションが存在し、かつそのdateプロパティが存在する場合にフォーマット
-        return $this->attendance && $this->attendance->date ? $this->attendance->date->format('m月d日') : 'N/A';
+        return $this->attendance && $this->attendance->date ? $this->attendance->date->format('n月j日') : 'N/A';
     }
 }

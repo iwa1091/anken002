@@ -41,7 +41,8 @@ body {
 
 .month-nav {
     display: flex;
-    align-items: center;
+    justify-content: space-between;
+    width: 100%;
     background-color: #fff;
     padding: 8px 24px;
     border-radius: 8px;
@@ -84,7 +85,7 @@ body {
 }
 
 .attendance-table thead {
-    background-color: #f7f7f7;
+    background-color: #fff;
 }
 
 .attendance-table th,
@@ -139,6 +140,13 @@ body {
     display: inline-block;
 }
 
+/* ===== レスポンシブ調整 (768px ～ 850px) ===== */
+@media screen and (min-width: 768px) and (max-width: 850px) {
+    .container {
+        max-width: 750px;
+        padding: 30px 20px;
+    }
+}
 /* ===== レスポンシブ調整 (1400px ～ 1540px) ===== */
 @media screen and (min-width: 1400px) and (max-width: 1540px) {
     .container {

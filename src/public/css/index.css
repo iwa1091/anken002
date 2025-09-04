@@ -2,8 +2,6 @@
 
 /* ===== 勤怠画面全体のスタイル ===== */
 body {
-
-
     max-width: 100%;
     width: 100%;
     margin: 0 auto;
@@ -71,26 +69,24 @@ body {
     cursor: pointer;
     transition: background-color 0.3s;
 }
-
-.checkin-form {
-    background-color: #000;
-    color: #fff;
-}
-
+/* ===== メッセージ共有部分 ===== */
 .stamp-button:hover {
     opacity: 0.9;
 }
 
-.stamp-form:first-child .stamp-button {
-    background-color: #000;
-    color: #fff;
+.stamp-form.stamp-button {
     border: none;
 }
+/* ===== 出勤・退勤メッセージ ===== */
+.checkinout-form {
+    background-color: #000;
+    color: #fff;
+}
 
-.stamp-form:last-child .stamp-button {
+/* ===== 休憩メッセージ ===== */
+.breakinout-form {
     background-color: #fff;
     color: #000;
-    border: none;
 }
 
 /* ===== 退勤後メッセージ ===== */

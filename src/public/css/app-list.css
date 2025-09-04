@@ -7,19 +7,26 @@
 
 /* 全体背景とフォント */
 body {
-    background-color: #f4f3f7;
-    font-family: "Helvetica Neue", "Arial", sans-serif;
-    color: #333;
+    max-width: 100%;
+    width: 100%;
+    margin: 0 auto;
+    background-color: #f1f0f3;
+    color: #000;
 }
 
-.container {
+.application-list-container {
     max-width: 1000px;
     margin: 40px auto;
     padding: 0 16px;
 }
 
+.line {
+    border-top: 1px solid #aaa;
+    margin-bottom:20px;
+}
+
 /* 見出し */
-.page-title {
+.application-list-title {
     font-size: 24px;
     font-weight: bold;
     margin-bottom: 30px;
@@ -28,11 +35,12 @@ body {
 }
 
 /* タブメニュー */
-.tab-menu {
+.tab-content {
     display: flex;
     justify-content: flex-start;
     margin-bottom: 16px;
-    border-bottom: 1px solid #aaa;
+    border-radius: 16px;
+    background-color: #fff;
 }
 
 .tab-item {
@@ -44,9 +52,7 @@ body {
     border-bottom: 3px solid transparent;
 }
 
-.tab-item.active {
-    border-bottom: 3px solid #000;
-}
+
 
 /* テーブル */
 .application-table {
@@ -66,20 +72,15 @@ body {
     text-align: center;
 }
 
-.application-table tbody tr {
-    background-color: #ffffff;
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-}
 
 .application-table td {
     border-top: 1px solid #e0e0e0;
 }
 
 /* 「詳細」ボタン */
-.detail-link {
+.detail-button {
     color: #333;
-    text-decoration: underline;
+    text-decoration: none;
     font-weight: bold;
     cursor: pointer;
 }
@@ -106,11 +107,7 @@ body {
     color: #333;
 }
 
-/* アクティブなタブ（checked）にスタイルを当てる */
-#tab-pending:checked+.tab-label,
-#tab-approved:checked+.tab-label {
-    border-bottom: 3px solid #000;
-}
+
 
 /* ラジオボタンを非表示にする */
 .tab-input {
@@ -119,7 +116,7 @@ body {
 
 /* レスポンシブ対応 */
 @media screen and (max-width: 850px) {
-    .container {
+    .application-list-container {
         padding: 0 12px;
     }
 
@@ -127,7 +124,7 @@ body {
         font-size: 20px;
     }
 
-    .tab-menu {
+    .tab-wrapper{
         flex-direction: column;
         gap: 8px;
     }
@@ -140,7 +137,7 @@ body {
 }
 
 @media screen and (min-width: 1400px) and (max-width: 1540px) {
-    .container {
+    .application-list-container {
         max-width: 1200px;
     }
 

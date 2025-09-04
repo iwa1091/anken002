@@ -12,61 +12,165 @@ body {
     color: #333;
 }
 
-.detail-container {
-    max-width: 900px;
-    margin: 40px auto;
-    padding: 0 16px;
-}
-
-.page-title,
 .detail-container h2 {
-    font-size: 24px;
+    font-size: 20px;
     font-weight: bold;
     margin-bottom: 30px;
     border-left: 6px solid #000;
     padding-left: 12px;
 }
 
-.detail-table {
-    width: 100%;
-    border-collapse: collapse;
-    background-color: #fff;
+.detail-container {
+    width: 1000px;
     border-radius: 12px;
-    overflow: hidden;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    margin: 60px auto;
+    padding: 40px 16px;
+    display: flex;
+    flex-direction: column;
 }
 
-.detail-table tr {
-    border-bottom: 1px solid #e0e0e0;
+.detail-container .pending-message,
+.detail-container .submit-button {
+    border-radius: 12px;
+    display: flex;
+    justify-content: right;
+    flex-direction: column;
+    gap: 20px;
 }
 
-.detail-table td {
-    padding: 20px;
-    text-align: center;
-    font-size: 16px;
-    vertical-align: middle;
+.grid-section{
+    
 }
 
-.detail-table td:first-child {
-    width: 25%;
+.grid-section:last-child {
+    border-bottom: none;
+}
+
+/* グリッド適用 */
+.grid-row {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    border-bottom: 2px solid #e0e0e0;
+    align-items: center;
+    padding: 10px 0;
+    gap: 10px;
+}
+
+.grid-label {
     font-weight: bold;
-    background-color: #fafafa;
+    color: #737373;
+    white-space: nowrap;
+    text-align: left;
 }
 
-.time-input,
+
+.grid-value,
+.grid-name {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    font-weight: bold;
+    color: #000;
+    gap: 50px;
+}
+
+.grid-data {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    font-weight: bold;
+    color: #000;
+    word-break: break-word;
+    gap: 150px;
+}
+
+.grid-name {
+    justify-content: flex-start;
+    margin-left: 0px;
+    padding-left: 20px;
+}
+
+.error-container {
+    display: flex;
+    flex-direction: column;
+    min-height: 40px;
+    /* 入力欄 + エラー表示分を確保 */
+}
+
+.error-message {
+    color: red;
+    font-size: 12px;
+    margin-top: 4px;
+    min-height: 16px;
+    /* エラーが無い場合でも高さを確保 */
+}
+
+.time-inputs {
+    display: flex;
+    align-items: center;
+}
+
+.background-container {
+    background-color: #f4f3f7;
+    padding: 0;
+}
+
+.background-white-section {
+    background-color: #fff;
+    padding: 0 24px;
+    margin: 0;
+    border-radius: 0;
+    box-shadow: none;
+    display: grid;
+    row-gap: 16px;
+}
+
+.background-white-section:first-child {
+    border-top-left-radius: 8px;
+    border-top-right-radius: 8px;
+}
+
+.background-white-section:last-child {
+    border-bottom-left-radius: 8px;
+    border-bottom-right-radius: 8px;
+    border-bottom: none;
+}
+
+
+/* 修正: z-indexを有効にするためにposition: relativeを追加 */
 input[type="time"] {
     width: 80px;
     padding: 6px 10px;
     text-align: center;
-    border: 1px solid #ccc;
+    border: 1px solid #E1E1E1;
     border-radius: 4px;
     font-size: 14px;
     background-color: #fff;
+    position: relative;
+    /* z-indexを有効にする */
+    z-index: 2;
+    /* ボタンより手前に配置 */
 }
 
-textarea.memo,
+input[type="time"]::-webkit-inner-spin-button,
+input[type="time"]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+/* 修正: 重なり順を調整 */
+input[type="time"]::-webkit-calendar-picker-indicator {
+    position: absolute;
+    opacity: 0;
+    pointer-events: auto;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+    /* inputタグより奥に配置 */
+}
+
 textarea {
-    width: 90%;
+    width: 300px;
     height: 80px;
     padding: 10px;
     font-size: 14px;
@@ -76,10 +180,16 @@ textarea {
     background-color: #fff;
 }
 
+.mx-2 {
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+/* 修正: z-indexを有効にするためにposition: relativeを追加 */
 .submit-button {
     display: block;
-    margin: 30px auto 0;
-    padding: 10px 36px;
+    margin: 40px 0 0 850px;
+    padding: 10px 12px;
     font-size: 16px;
     font-weight: bold;
     color: #fff;
@@ -88,45 +198,25 @@ textarea {
     border-radius: 8px;
     cursor: pointer;
     transition: opacity 0.3s ease;
+    position: relative;
+    /* z-indexを有効にする */
+    z-index: 3;
+    /* すべての要素より手前に配置 */
 }
 
 .submit-button:hover {
     opacity: 0.8;
 }
-
-.info-header,
-.info-group,
-.form-group {
-    margin-bottom: 24px;
-}
-
-.info-label {
-    display: inline-block;
-    width: 80px;
-    font-weight: bold;
-}
-
-.info-value {
-    display: inline-block;
-    min-width: 100px;
-}
-
-.break-item {
+.error {
     display: flex;
-    align-items: center;
-    gap: 8px;
-    margin-bottom: 10px;
+    justify-content: center;
 }
-
-.break-label {
-    width: 60px;
-    font-weight: bold;
-}
-
 .error-message {
+
     color: red;
     font-size: 14px;
     margin-top: 4px;
+    text-align: right;
 }
 
 .alert {
@@ -143,66 +233,67 @@ textarea {
 }
 
 .pending-message {
+    display: flex;
+    justify-self: right;
     text-align: center;
     color: red;
     font-weight: bold;
     margin-top: 20px;
 }
 
-/* レスポンシブ対応：タブレット */
 @media screen and (max-width: 850px) {
     .detail-container {
+        width: 768px;
         padding: 0 12px;
     }
 
-    .page-title,
     .detail-container h2 {
-        font-size: 20px;
+        font-size: 18px;
     }
 
-    .detail-table td {
-        font-size: 14px;
-        padding: 16px 8px;
+    .grid-row {
+        grid-template-columns: 100px 1fr;
+        gap: 8px;
     }
 
-    .time-input,
     input[type="time"] {
         width: 70px;
         font-size: 12px;
     }
 
     .submit-button {
-        width: 100%;
+        width: 120px;
         padding: 12px 0;
+        margin: 30px 0 0 610px ;
     }
 
-    .break-item {
-        flex-direction: column;
-        align-items: flex-start;
-    }
 }
 
-/* レスポンシブ対応：PCワイド */
-@media screen and (min-width: 1400px) and (max-width: 1540px) {
+@media screen and (max-width: 480px) {
     .detail-container {
-        max-width: 1100px;
+        margin: 15px;
+        padding: 15px;
     }
 
-    .detail-table td {
-        font-size: 18px;
+    .detail-container h2 {
+        font-size: 1.6em;
     }
 
-    .time-input,
+    .grid-row {
+        grid-template-columns: 1fr;
+        gap: 5px;
+    }
+
     input[type="time"] {
-        font-size: 16px;
+        width: 100%;
     }
 
     textarea.memo,
     textarea {
-        font-size: 16px;
+        width: 100%;
     }
 
     .submit-button {
-        font-size: 18px;
+        width: 100%;
     }
 }

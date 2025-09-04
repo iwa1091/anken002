@@ -94,28 +94,28 @@ class ApplicationController extends Controller
                          ->withInput();
         }
 
-        // ★★★ 以下のバリデーションエラーのデバッグログブロックを削除しました ★★★
-        // if ($request->fails()) {
-        //     Log::error('storeCorrectionRequest: Validation failed!', $request->errors()->toArray());
-        // }
-        // ★★★ ここまで削除 ★★★
-
         try {
+        
             DB::transaction(function () use ($request, $attendance_id, $userId) {
-                // ★★★ ここからデバッグログを追加 ★★★
-                Log::debug('storeCorrectionRequest: Validated request data', $request->validated());
-                Log::debug('storeCorrectionRequest: Type of requested_breaks: ' . gettype($request->input('requested_breaks')));
-                if (is_array($request->input('requested_breaks'))) {
-                    Log::debug('storeCorrectionRequest: requested_breaks content: ' . json_encode($request->input('requested_breaks')));
+                // requested_breaksのデータが配列であることを確認し、JSON文字列に変換
+                $requestedBreaks = $request->input('requested_breaks');
+                if (is_array($requestedBreaks)) {
+                    $requestedBreaks = json_encode($requestedBreaks);
+                } else {
+                    // 配列でない場合、空のJSON配列として扱う（またはnull）
+                    $requestedBreaks = json_encode([]);
                 }
-                // ★★★ ここまでデバッグログを追加 ★★★
+
+                // デバッグログを追加
+                Log::debug('storeCorrectionRequest: Validated request data', $request->validated());
+                Log::debug('storeCorrectionRequest: JSON-encoded breaks: ' . $requestedBreaks);
 
                 CorrectionRequest::create([
                     'user_id' => $userId,
                     'attendance_id' => $attendance_id,
                     'requested_check_in_time' => $request->input('requested_check_in_time'),
                     'requested_check_out_time' => $request->input('requested_check_out_time'),
-                    'requested_breaks' => $request->input('requested_breaks'),
+                    'requested_breaks' => $requestedBreaks, // JSON文字列に変換したデータをセット
                     'reason' => $request->input('reason'),
                     'status' => 'pending', // 承認待ち
                 ]);
@@ -124,10 +124,11 @@ class ApplicationController extends Controller
             return redirect()->route('stamp_correction_request.list')->with('success', '修正申請を提出しました。');
 
         } catch (\Exception $e) {
+        
             // エラーハンドリング
             Log::error('Failed to store correction request: ' . $e->getMessage(), ['attendance_id' => $attendance_id, 'user_id' => $userId, 'request_data' => $request->all()]);
             return back()->withErrors(['application_error' => '修正申請の提出に失敗しました。時間をおいて再度お試しください。'])
-                         ->withInput();
+                        ->withInput();
         }
     }
 }

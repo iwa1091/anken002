@@ -1,15 +1,14 @@
-/* /public/css/list.css */
-
-/* 勤怠一覧ページの全体コンテナ */
-main {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
+/* -----------------------------
+   全体スタイル
+----------------------------- */
+body {
     max-width: 100%;
     width: 100%;
     margin: 0 auto;
-    background-color: #F0EFF2;
+    background-color: #f1f0f3;
+    color: #000;
 }
+
 .attendance-list__container {
     max-width: 960px;
     margin: 40px auto;
@@ -19,7 +18,9 @@ main {
     box-sizing: border-box;
 }
 
-/* タイトル */
+/* -----------------------------
+   タイトル
+----------------------------- */
 .attendance-list__page-title {
     font-size: 24px;
     font-weight: bold;
@@ -27,9 +28,13 @@ main {
     margin-bottom: 32px;
     text-align: left;
     padding-left: 12px;
+    border-left: 6px solid #000;
+    padding-left: 12px;
 }
 
-/* ナビゲーション */
+/* -----------------------------
+   ナビゲーション
+----------------------------- */
 .attendance-list__header {
     display: flex;
     justify-content: center;
@@ -39,9 +44,18 @@ main {
 
 .attendance-list__month-nav {
     display: flex;
+    padding: 10px 8px;
+    justify-content: space-between;
     align-items: center;
     gap: 24px;
     font-weight: 500;
+    width: 100%;
+    background-color: #fff;
+    flex-wrap: wrap;
+}
+
+.attendance-list__month-nav a {
+    color: #737373;
 }
 
 .month-nav-link {
@@ -55,6 +69,16 @@ main {
     opacity: 0.6;
 }
 
+.arrow {
+    font-size: 14px;
+}
+
+.month-icon {
+    width: 20px;
+    height: 20px;
+    margin-right: 5px;
+}
+
 .attendance-list__current-month {
     display: flex;
     align-items: center;
@@ -62,13 +86,9 @@ main {
     font-weight: bold;
 }
 
-.month-icon {
-    width: 20px;
-    height: 20px;
-    margin-right: 8px;
-}
-
-/* テーブルラッパー */
+/* -----------------------------
+   テーブル
+----------------------------- */
 .attendance-list__table-wrapper {
     overflow-x: auto;
     background-color: #fff;
@@ -76,12 +96,11 @@ main {
     padding: 8px 0;
 }
 
-/* テーブル */
 .attendance-list__table {
     width: 100%;
     border-collapse: collapse;
     font-size: 14px;
-    color: #000;
+    color: #737373;
     min-width: 700px;
 }
 
@@ -92,8 +111,12 @@ main {
     border-bottom: 1px solid #ddd;
 }
 
+.attendance-list__table tbody tr:last-child td {
+    border-bottom: none;
+}
+
 .attendance-list__table th {
-    background-color: #f6f6f6;
+    background-color: #fff;
     font-weight: bold;
 }
 
@@ -101,14 +124,16 @@ main {
     background-color: #f0f0f0;
 }
 
-/* 詳細ボタン */
+/* -----------------------------
+   詳細ボタン
+----------------------------- */
 .attendance-list__detail-button {
     font-size: 14px;
     font-weight: 600;
     padding: 6px 12px;
     border-radius: 6px;
-    background-color: #000;
-    color: #fff;
+    background-color: #fff;
+    color: #000;
     text-decoration: none;
     transition: opacity 0.3s;
 }
@@ -117,7 +142,9 @@ main {
     opacity: 0.8;
 }
 
-/* レスポンシブ調整 */
+/* -----------------------------
+   PC対応（1400〜1540px）
+----------------------------- */
 @media screen and (min-width: 1400px) and (max-width: 1540px) {
     .attendance-list__container {
         padding: 60px 40px;
@@ -139,5 +166,47 @@ main {
 
     .month-nav-link {
         font-size: 17px;
+    }
+}
+
+/* -----------------------------
+   タブレット対応（768〜850px）
+----------------------------- */
+@media screen and (min-width: 768px) and (max-width: 850px) {
+    .attendance-list__container {
+        padding: 32px 16px;
+    }
+
+    .attendance-list__page-title {
+        font-size: 22px;
+    }
+
+    .attendance-list__month-nav {
+        flex-direction: column;
+        gap: 12px;
+        text-align: center;
+    }
+
+    .attendance-list__current-month {
+        font-size: 18px;
+        justify-content: center;
+    }
+
+    .month-nav-link {
+        font-size: 15px;
+    }
+
+    .attendance-list__table {
+        font-size: 13px;
+    }
+
+    .attendance-list__table th,
+    .attendance-list__table td {
+        padding: 10px;
+    }
+
+    .attendance-list__detail-button {
+        padding: 6px 10px;
+        font-size: 13px;
     }
 }

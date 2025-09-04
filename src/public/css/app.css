@@ -93,7 +93,17 @@ main {
     }
 
     main {
-        max-width: 960px;
+        max-width: 100%;
         padding: 60px 40px;
     }
+}
+
+        @media screen and (max-width: 850px) {
+    .header__inner {
+        width: 960px;
+    }
+
+    main {
+        max-width: 960px;
+    } 
 }

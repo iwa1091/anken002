@@ -23,6 +23,8 @@
         <input type="radio" id="tab-approved" name="application-tabs" class="tab-input">
         <label for="tab-approved" class="tab-label">承認済み</label>
 
+        <div class="line"></div>
+
         {{-- 承認待ちの申請一覧 (FN031) --}}
         <div id="content-pending" class="tab-content">
             @if ($pendingApplications->isEmpty())

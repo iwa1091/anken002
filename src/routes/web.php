@@ -8,39 +8,24 @@ use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Admin\Auth\AuthenticatedSessionController as AdminAuthenticatedSessionController;
 use App\Http\Controllers\Admin\AttendanceController as AdminAttendanceController;
 use App\Http\Controllers\Admin\StaffController as AdminStaffController;
-use App\Http\Controllers\Admin\ApplicationController as AdminApplicationController; // 管理者申請コントローラ
+use App\Http\Controllers\Admin\ApplicationController as AdminApplicationController;
 use Laravel\Fortify\Http\Controllers\EmailVerificationPromptController;
 use Laravel\Fortify\Http\Controllers\VerifyEmailController;
-use Laravel\Fortify\Http\Controllers\NewPasswordController; // パスワードリセットコントローラが必要に応じて
-use Laravel\Fortify\Http\Controllers\PasswordResetLinkController; // パスワードリセットリンクコントローラが必要に応じて
-use Laravel\Fortify\Http\Controllers\TwoFactorAuthenticationController; // 2要素認証コントローラが必要に応じて
-use Laravel\Fortify\Http\Controllers\ConfirmablePasswordController; // パスワード確認コントローラが必要に応じて
-use Laravel\Fortify\Http\Controllers\PasswordController; // パスワード更新コントローラが必要に応じて
-use Laravel\Fortify\Http\Controllers\ProfileInformationController; // プロフィール情報更新コントローラが必要に応じて
-use Laravel\Fortify\Http\Controllers\RegisteredUserController as FortifyRegisteredUserController; // Fortifyのコントローラと名前が衝突しないようにエイリアス
-use Laravel\Fortify\Http\Controllers\AuthenticatedSessionController as FortifyAuthenticatedSessionController; // Fortifyのコントローラと名前が衝突しないようにエイリアス
-use Laravel\Fortify\Http\Controllers\EmailVerificationNotificationController; // メール認証再送コントローラ
-use Illuminate\Support\Facades\Auth; // Authファサードをインポート
+use Laravel\Fortify\Http\Controllers\EmailVerificationNotificationController;
+use Illuminate\Support\Facades\Auth;
 
 
 /*
 |--------------------------------------------------------------------------
 | Web Routes
 |--------------------------------------------------------------------------
-|
-| Here is where you can register web routes for your application. These
-| routes are loaded by the RouteServiceProvider within a group which
-| contains the "web" middleware group. Now create something great!
-|
 */
 
 // --- 認証関連ルート (Fortifyが提供するルートに準拠) ---
 
 // 一般ユーザー
 Route::middleware('guest')->group(function () {
-    // PG01 会員登録画面（一般ユーザー）
     Route::get('/register', [RegisteredUserController::class, 'create'])->name('register');
-    // PG02 ログイン画面（一般ユーザー）
     Route::get('/login', [AuthenticatedSessionController::class, 'create'])->name('login');
 });
 
@@ -58,8 +43,9 @@ Route::get('/email/verify/{id}/{hash}', [VerifyEmailController::class, '__invoke
     ->middleware(['auth', 'signed', 'throttle:6,1'])
     ->name('verification.verify');
 
+// ★★★ 修正箇所 ★★★
 // メール認証再送ルート
-Route::post('/email/verification-notification', [EmailVerificationNotificationController::class, '__invoke'])
+Route::post('/email/verification-notification', [EmailVerificationNotificationController::class, 'store'])
     ->middleware(['auth', 'throttle:6,1'])
     ->name('verification.resend');
 
@@ -81,74 +67,41 @@ Route::middleware(['auth:admin'])->group(function () {
 // --- 一般ユーザー向け機能ルート ---
 Route::middleware(['auth'])->group(function () {
     // 一般ユーザー向けのダッシュボードルート
-    // ★修正: view('dashboard') から redirect()->route('attendance') に変更 ★
     Route::get('/dashboard', function () {
         return redirect()->route('attendance');
     })->name('dashboard');
 
-    // PG03 勤怠登録画面（一般ユーザー）
     Route::get('/attendance', [AttendanceController::class, 'index'])->name('attendance');
-    // 出勤打刻処理
     Route::post('/attendance/checkin', [AttendanceController::class, 'checkIn'])->name('attendance.checkin');
-    // 休憩開始処理
     Route::post('/attendance/breakin', [AttendanceController::class, 'breakIn'])->name('attendance.breakin');
-    // 休憩終了処理
     Route::post('/attendance/breakout', [AttendanceController::class, 'breakOut'])->name('attendance.breakout');
-    // 退勤打刻処理
     Route::post('/attendance/checkout', [AttendanceController::class, 'checkOut'])->name('attendance.checkout');
 
-    // PG04 勤怠一覧画面（一般ユーザー）
     Route::get('/attendance/list/{month?}', [AttendanceController::class, 'list'])->name('attendance.list');
-
-    // PG05 勤怠詳細画面（一般ユーザー）
     Route::get('/attendance/{id}', [AttendanceController::class, 'show'])->name('attendance.show');
-
-    // 勤怠修正申請処理（一般ユーザー）のルートをApplicationControllerに移動
     Route::post('/attendance/{attendance_id}/correction-request', [ApplicationController::class, 'storeCorrectionRequest'])->name('application.storeCorrectionRequest');
 
-    // PG06 申請一覧画面（一般ユーザー）
     Route::get('/stamp_correction_request/list', [ApplicationController::class, 'index'])->name('stamp_correction_request.list');
-    // 申請詳細画面（一般ユーザー）- 修正不可
     Route::get('/stamp_correction_request/{id}', [ApplicationController::class, 'show'])->name('stamp_correction_request.show');
-
 
     // Fortifyメール認証後のリダイレクト先
     Route::get('/mypage', function() {
-        return redirect()->route('attendance'); // メール認証後、打刻画面へリダイレクト
+        return redirect()->route('attendance');
     })->middleware('verified')->name('mypage');
 });
 
 
 // --- 管理者向け機能ルート ---
 Route::middleware(['auth:admin', 'can:admin-access'])->prefix('admin')->name('admin.')->group(function () {
-
-    // PG08 勤怠一覧画面（管理者）
     Route::get('/attendance/list/{date?}', [AdminAttendanceController::class, 'list'])->name('attendance.list');
-
-    // PG09 勤怠詳細画面（管理者）
     Route::get('/attendance/{id}', [AdminAttendanceController::class, 'show'])->name('attendance.show');
-
-    // 勤怠編集フォーム表示ルート（管理者）
     Route::get('/attendance/{id}/edit', [AdminAttendanceController::class, 'edit'])->name('attendance.edit');
-
-    // 勤怠更新（管理者）
     Route::put('/attendance/{id}', [AdminAttendanceController::class, 'update'])->name('attendance.update');
-
-    // 勤怠削除（管理者）
     Route::delete('/attendance/{id}', [AdminAttendanceController::class, 'delete'])->name('attendance.delete');
-
-    // PG10 スタッフ一覧画面（管理者）
     Route::get('/staff/list', [AdminStaffController::class, 'index'])->name('staff.list');
-
-    // PG11 スタッフ別勤怠一覧画面（管理者）
     Route::get('/attendance/staff/{id}/{month?}', [AdminStaffController::class, 'attendanceList'])->name('staff.attendance');
-    // CSV出力機能
     Route::get('/attendance/staff/{id}/{month}/csv', [AdminStaffController::class, 'exportCsv'])->name('staff.attendance.csv');
-
-    // PG12 申請一覧画面（管理者）
     Route::get('/stamp_correction_request/list', [AdminApplicationController::class, 'index'])->name('stamp_correction_request.list');
-
-    // PG13 修正申請承認画面（管理者）
     Route::get('/stamp_correction_request/approve/{id}', [AdminApplicationController::class, 'showApproveForm'])->name('stamp_correction_request.approve.show');
     Route::post('/stamp_correction_request/approve/{id}', [AdminApplicationController::class, 'approve'])->name('stamp_correction_request.approve');
 });

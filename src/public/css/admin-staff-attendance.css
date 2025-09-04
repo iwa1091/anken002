@@ -1,0 +1,216 @@
+/* admin-staff-attendance.css */
+
+body {
+    background-color: #f5f4f4;
+    font-family: 'Noto Sans JP', sans-serif;
+    margin: 0;
+    padding: 0;
+    color: #000;
+}
+
+.container {
+    max-width: 900px;
+    margin: 40px auto;
+    padding: 0 20px;
+    background-color: #f5f4f4;
+}
+
+.page-title {
+
+    font-size: 20px;
+    font-weight: bold;
+    margin-bottom: 30px;
+    border-left: 5px solid #000;
+    padding-left: 10px;
+}
+
+/* 月移動ナビ */
+.month-navigation-section {
+    display: flex;
+    justify-content: center;
+    width: 0 auto;
+    align-items: center;
+    margin-bottom: 30px;
+}
+
+.month-nav {
+    display: flex;
+    align-items: center;
+    gap: 320px;
+    font-weight: bold;
+}
+
+.month-nav-link {
+    color: #737373;
+    text-decoration: none;
+    font-size: 14px;
+}
+
+.month-icon {
+    width: 20px;
+    vertical-align: middle;
+    margin-right: 5px;
+}
+
+.current-month-display {
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+}
+
+/* 勤怠テーブル */
+.table-responsive {
+    overflow-x: auto;
+}
+
+.attendance-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+    background-color: #fff;
+}
+
+.attendance-table th,
+.attendance-table td {
+    color: #737373;
+    padding: 12px;
+    text-align: center;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.attendance-table th {
+    background-color: #f9f9f9;
+    font-weight: bold;
+}
+
+.attendance-table tr:nth-child(even) {
+    background-color: #f9f9f9;
+}
+
+.attendance-table tr:hover {
+    background-color: #f1f1f1;
+}
+
+.no-data {
+    text-align: center;
+    padding: 20px;
+    font-style: italic;
+    color: #666;
+}
+
+/* 詳細ボタン */
+.action-button.detail-button {
+    display: inline-block;
+    padding: 6px 16px;
+    color: #000;
+    text-decoration: none;
+    border-radius: 4px;
+    font-size: 13px;
+    font-weight: bold;
+}
+
+.action-button.detail-button:hover {
+    background-color: #333;
+}
+
+/* CSV出力ボタン */
+.csv-export-button-container {
+    text-align: right;
+    margin-top: 20px;
+}
+
+.csv-button {
+    display: inline-block;
+    padding: 10px 25px;
+    background-color: #000;
+    color: #fff;
+    text-decoration: none;
+    font-weight: bold;
+    border-radius: 5px;
+    font-size: 14px;
+}
+
+.csv-button:hover {
+    background-color: #333;
+}
+
+/* レスポンシブ対応 */
+/* PCサイズ (1400px - 1540px) */
+@media screen and (min-width: 1400px) and (max-width: 1540px) {
+    .container {
+        max-width: 1100px;
+        /* 少し広めに */
+        padding: 0 30px;
+    }
+
+    .page-title {
+        font-size: 22px;
+    }
+
+    .month-nav {
+        gap: 400px;
+        /* 余裕があるので広げる */
+    }
+
+    .attendance-table th,
+    .attendance-table td {
+        font-size: 15px;
+        padding: 14px;
+    }
+
+    .csv-button {
+        font-size: 15px;
+        padding: 12px 30px;
+    }
+}
+
+/* タブレットサイズ (768px - 850px) */
+@media screen and (min-width: 768px) and (max-width: 850px) {
+    .container {
+        max-width: 100%;
+        margin: 20px auto;
+        padding: 0 15px;
+    }
+
+    .page-title {
+        font-size: 18px;
+        margin-bottom: 20px;
+    }
+
+    .month-nav {
+        gap: 180px;
+        font-size: 13px;
+    }
+
+    .month-nav-link {
+        font-size: 12px;
+    }
+
+    .current-month-display {
+        font-size: 13px;
+    }
+
+    .attendance-table {
+        font-size: 12px;
+    }
+
+    .attendance-table th,
+    .attendance-table td {
+        padding: 8px;
+    }
+
+    .action-button.detail-button {
+        padding: 5px 12px;
+        font-size: 12px;
+    }
+
+    .csv-export-button-container {
+        text-align: right;
+        /* ボタンを中央寄せ */
+    }
+
+    .csv-button {
+        font-size: 13px;
+        padding: 8px 20px;
+    }
+}

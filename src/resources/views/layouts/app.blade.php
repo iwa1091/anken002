@@ -36,30 +36,17 @@
                 <nav class="header__nav">
                     <ul class="header__list">
                         @auth {{-- ユーザーがログインしている場合のみメニューを表示 --}}
-                            @if (Auth::user()->isAdmin()) {{-- 管理者ユーザーの場合 --}}
-                                <!-- 管理者専用画面メニュー -->
-                                <li class="header__list-item">
-                                    {{-- admin.dashboard を admin.attendance.list に修正 --}}
-                                    <a href="{{ route('admin.attendance.list') }}" class="header__form--mypage">勤怠一覧</a>
-                                </li>
-                                <li class="header__list-item">
-                                    <a href="{{ route('admin.staff.list') }}" class="header__form--list">スタッフ一覧</a>
-                                </li>
-                                <li class="header__list-item">
-                                    <a href="{{ route('admin.stamp_correction_request.list') }}" class="header__form--list">申請一覧</a>
-                                </li>
-                            @else {{-- 一般スタッフユーザーの場合 --}}
-                                <!-- スタッフ専用画面メニュー -->
-                                <li class="header__list-item">
-                                    <a href="{{ route('attendance') }}" class="header__form--mypage">勤怠</a>
-                                </li>
-                                <li class="header__list-item">
-                                    <a href="{{ route('attendance.list') }}" class="header__form--list">勤怠一覧</a>
-                                </li>
-                                <li class="header__list-item">
-                                    <a href="{{ route('stamp_correction_request.list') }}" class="header__form--list">申請</a>
-                                </li>
-                            @endif
+                            {{-- ★修正: 管理者ユーザーの場合のメニューブロックを削除しました ★ --}}
+                            {{-- 一般スタッフユーザーの場合のメニューのみを残します --}}
+                            <li class="header__list-item">
+                                <a href="{{ route('attendance') }}" class="header__form--mypage">勤怠</a>
+                            </li>
+                            <li class="header__list-item">
+                                <a href="{{ route('attendance.list') }}" class="header__form--list">勤怠一覧</a>
+                            </li>
+                            <li class="header__list-item">
+                                <a href="{{ route('stamp_correction_request.list') }}" class="header__form--list">申請</a>
+                            </li>
                             {{-- ログアウトは管理者とスタッフで共通 --}}
                             <li class="header__list-item">
                                 <form action="{{ route('logout') }}" method="post">

@@ -1,246 +1,155 @@
-/* admin-staff-list.css */
-
-/* 基本的なリセットとフォント設定 */
+/* ベーススタイル */
 body {
-    font-family: 'Inter', sans-serif;
-    line-height: 1.6;
-    color: #333;
-    background-color: #f4f7f6;
+    background-color: #f1f0f3;
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
     margin: 0;
     padding: 0;
 }
 
+/* コンテナ */
 .container {
     max-width: 900px;
-    /* FigmaのPCビューに合わせて調整 */
     margin: 40px auto;
-    padding: 30px;
-    background-color: #ffffff;
-    border-radius: 12px;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    padding: 0 16px;
 }
 
+/* タイトル */
 .page-title {
-    text-align: center;
-    color: #2c3e50;
-    margin-bottom: 30px;
-    font-size: 2.2em;
-    font-weight: 700;
-    padding-bottom: 15px;
-    border-bottom: 2px solid #e0e0e0;
+    font-size: 24px;
+    font-weight: bold;
+    margin-bottom: 24px;
+    padding-left: 10px;
+    border-left: 5px solid #000;
 }
 
-/* Success/Error messages */
-.alert {
-    padding: 15px;
-    margin-bottom: 20px;
-    border: 1px solid transparent;
-    border-radius: 8px;
-    font-weight: 500;
-    text-align: center;
-}
-
-.alert-danger {
-    color: #842029;
-    background-color: #f8d7da;
-    border-color: #f5c2c7;
-}
-
-.no-data {
-    text-align: center;
-    padding: 30px;
-    color: #777;
-    font-style: italic;
-    font-size: 1.1em;
-}
-
-/* テーブルのレスポンシブ対応 */
-.table-responsive {
-    overflow-x: auto;
-    margin-bottom: 20px;
-    border-radius: 8px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-}
-
-/* スタッフテーブル */
+/* テーブル全体 */
 .staff-table {
     width: 100%;
     border-collapse: collapse;
-    min-width: 500px;
-    /* 小さな画面でテーブルが小さくなりすぎないように */
+    background-color: #fff;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
 }
 
-.staff-table thead th {
-    background-color: #e9ecef;
-    color: #495057;
-    padding: 15px;
+/* テーブルヘッダー */
+.staff-table thead {
+    background-color: #fff;
+}
+
+.staff-table th {
     text-align: left;
-    font-weight: 600;
-    border-bottom: 2px solid #dee2e6;
+    padding: 16px;
+    padding-left: 80px;
+    font-size: 14px;
+    color: #555;
+    border-bottom: 1px solid #ddd;
 }
 
-.staff-table tbody td {
-    padding: 15px;
-    border-bottom: 1px solid #e9ecef;
-    vertical-align: middle;
+/* テーブルボディ */
+.staff-table td {
+    padding: 16px;
+    padding-left: 80px;
+    font-size: 14px;
+    border-bottom: 1px solid #eee;
+    color: #333;
 }
 
-.staff-table tbody tr:nth-child(even) {
-    background-color: #f8f9fa;
-}
-
-.staff-table tbody tr:hover {
-    background-color: #e2f0ff;
-    transition: background-color 0.2s ease;
-}
-
-/* アクションボタン */
-.action-button {
-    display: inline-block;
-    padding: 8px 15px;
-    border-radius: 8px;
-    text-decoration: none;
-    font-weight: 500;
-    transition: all 0.3s ease;
-    text-align: center;
-    white-space: nowrap;
-    /* ボタン内のテキストが改行されないように */
-}
-
+/* 詳細ボタン */
 .detail-button {
-    background-color: #007bff;
-    color: #ffffff;
-    border: 1px solid #007bff;
+    display: inline-block;
+    padding: 6px 16px;
+    background-color: #fff;
+    color: #000;
+    font-weight: bold;
+    text-decoration: none;
+    border-radius: 6px;
+    transition: background-color 0.2s ease, color 0.2s ease;
 }
 
 .detail-button:hover {
-    background-color: #0056b3;
-    border-color: #0056b3;
-    transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(0, 123, 255, 0.2);
-}
-
-/* ページネーションリンク */
-.pagination-links {
-    margin-top: 30px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-
-.pagination-links nav {
-    display: flex;
-    justify-content: center;
-}
-
-.pagination-links .pagination {
-    display: flex;
-    padding-left: 0;
-    list-style: none;
-    border-radius: 0.25rem;
-}
-
-.pagination-links .page-item {
-    margin: 0 5px;
-}
-
-.pagination-links .page-item .page-link {
-    position: relative;
-    display: block;
-    padding: 0.5rem 0.75rem;
-    margin-left: -1px;
-    line-height: 1.25;
-    color: #007bff;
-    background-color: #fff;
-    border: 1px solid #dee2e6;
-    border-radius: 8px;
-    /* 角丸を適用 */
-    text-decoration: none;
-    transition: all 0.3s ease;
-}
-
-.pagination-links .page-item .page-link:hover {
-    z-index: 2;
-    color: #0056b3;
-    text-decoration: none;
-    background-color: #e9ecef;
-    border-color: #dee2e6;
-}
-
-.pagination-links .page-item.active .page-link {
-    z-index: 3;
+    background-color: #000;
     color: #fff;
-    background-color: #007bff;
-    border-color: #007bff;
 }
 
-.pagination-links .page-item.disabled .page-link {
-    color: #6c757d;
-    pointer-events: none;
-    background-color: #fff;
-    border-color: #dee2e6;
+/* 「データがありません」 */
+.no-data {
+    text-align: center;
+    padding: 24px;
+    color: #999;
+    font-size: 14px;
 }
 
-/* レスポンシブ対応 */
-@media (max-width: 768px) {
+/* ページネーション */
+.pagination-links {
+    text-align: center;
+    margin-top: 24px;
+}
+
+/* レスポンシブ対応: タブレット（768px ～ 850px）とPC（1400px ～ 1540px） */
+@media (min-width: 768px) and (max-width: 850px),
+(min-width: 1400px) and (max-width: 1540px) {
     .container {
-        margin: 20px;
-        padding: 20px;
+        max-width: 90%;
+    }
+
+    .staff-table th,
+    .staff-table td {
+        padding-left: 40px;
+        padding-right: 16px;
+        font-size: 13px;
     }
 
     .page-title {
-        font-size: 1.8em;
+        font-size: 22px;
     }
 
-    .staff-table thead th,
-    .staff-table tbody td {
-        padding: 10px;
-        font-size: 0.9em;
-    }
-
-    .action-button {
-        padding: 6px 10px;
-        font-size: 0.85em;
+    .detail-button {
+        padding: 5px 12px;
+        font-size: 13px;
     }
 }
 
-@media (max-width: 480px) {
-    .container {
-        margin: 15px;
-        padding: 15px;
-    }
-
-    .page-title {
-        font-size: 1.5em;
-    }
-
-    .staff-table {
-        min-width: unset;
-        /* モバイルではmin-widthをリセット */
-    }
-
+/* レスポンシブ対応: モバイル（～767px） */
+@media (max-width: 767px) {
     .staff-table thead {
         display: none;
-        /* ヘッダーを非表示にすることも検討 */
     }
 
-    .staff-table tbody td {
+    .staff-table,
+    .staff-table tbody,
+    .staff-table tr,
+    .staff-table td {
         display: block;
         width: 100%;
-        box-sizing: border-box;
-        text-align: right;
-        padding-left: 50%;
-        /* ラベル用のスペース */
-        position: relative;
     }
 
-    .staff-table tbody td::before {
+    .staff-table tr {
+        margin-bottom: 16px;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        background-color: #fff;
+    }
+
+    .staff-table td {
+        text-align: right;
+        padding: 12px 16px;
+        position: relative;
+        font-size: 14px;
+    }
+
+    .staff-table td::before {
         content: attr(data-label);
         position: absolute;
-        left: 10px;
-        width: 45%;
+        left: 16px;
+        top: 12px;
+        font-weight: bold;
+        color: #666;
+        font-size: 13px;
         text-align: left;
-        font-weight: 600;
-        color: #555;
+    }
+
+    .detail-button {
+        margin-top: 8px;
     }
 }

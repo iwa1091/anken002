@@ -11,7 +11,6 @@ use App\Models\BreakTime; // BreakTimeモデルをインポート
 use App\Http\Requests\Admin\AdminAttendanceUpdateRequest; // 新しいForm Requestをインポート
 use Illuminate\Support\Facades\DB; // トランザクションのためにDBファサードをインポート
 
-// クラス名をファイル名に合わせて AttendanceController に変更
 class AttendanceController extends Controller
 {
     /**

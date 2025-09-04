@@ -1,227 +1,266 @@
 /* admin-app-show.css */
 
-/* 基本的なリセットとフォント設定 */
 body {
-    font-family: 'Inter', sans-serif;
-    line-height: 1.6;
-    color: #333;
-    background-color: #f4f7f6;
+    background-color: #f4f3f6;
+    font-family: 'Noto Sans JP', sans-serif;
     margin: 0;
     padding: 0;
+    color: #000;
 }
 
 .container {
-    max-width: 800px;
-    /* FigmaのPCビューに合わせて調整 */
-    margin: 40px auto;
-    padding: 30px;
-    background-color: #ffffff;
-    border-radius: 12px;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    max-width: 700px;
+    margin: 60px auto;
+    padding: 0 20px;
+    background-color: transparent;
 }
 
 .page-title {
-    text-align: center;
-    color: #2c3e50;
+    font-size: 20px;
+    font-weight: bold;
     margin-bottom: 30px;
-    font-size: 2.2em;
-    font-weight: 700;
-    padding-bottom: 15px;
-    border-bottom: 2px solid #e0e0e0;
+    border-left: 5px solid #000;
+    padding-left: 10px;
 }
 
-/* Success/Error messages */
-.alert {
-    padding: 15px;
-    margin-bottom: 20px;
-    border: 1px solid transparent;
-    border-radius: 8px;
-    font-weight: 500;
-    text-align: center;
-}
 
-.alert-success {
-    color: #0f5132;
-    background-color: #d1e7dd;
-    border-color: #badbcc;
-}
-
-.alert-danger {
-    color: #842029;
-    background-color: #f8d7da;
-    border-color: #f5c2c7;
-}
-
-.error-message {
-    color: #dc3545;
-    /* 赤色 */
-    font-size: 0.9em;
-    margin-top: 5px;
-    margin-bottom: 0;
-    padding-left: 5px;
-    /* インプットの左端と合わせる */
-}
-
-.no-data {
-    text-align: center;
-    padding: 30px;
-    color: #777;
-    font-style: italic;
-}
-
-/* 情報表示セクション (フォームの上部) */
+/* 勤怠詳細セクション */
 .detail-section {
-    margin-bottom: 30px;
+    background-color: #fff;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
 }
 
 .info-group {
     display: flex;
-    align-items: center;
-    margin-bottom: 15px;
-    padding: 10px 0;
-    border-bottom: 1px dashed #e9ecef;
+    justify-content:left;
+    padding: 18px 24px;
+    border-bottom: 1px solid #eee;
+    font-size: 14px;
 }
 
-.info-group:last-of-type {
-    border-bottom: none;
-}
 
 .info-label {
-    flex-basis: 150px;
-    /* ラベルの固定幅 */
-    font-weight: 600;
-    color: #555;
-    font-size: 1.1em;
-    margin-right: 20px;
+    font-weight: bold;
+    color: #666;
 }
 
 .info-value {
-    flex-grow: 1;
-    font-size: 1.1em;
-    color: #333;
+    font-weight: 500;
 }
 
+.info-name {
+    padding-left: 190px;
+}
+
+/* 出勤・退勤の横並び */
+.time-inputs {
+    display: flex;
+    align-items: center;
+    /* 入力欄と 〜 を縦位置揃え */
+    gap: 10px;
+    /* 適度に間隔を空ける */
+}
+
+/* 日付の年と月日 */
 .date-year {
-    margin-right: 5px;
+    margin-left: 190px;
 }
 
-/* フォームグループ */
+.date-month-day {
+    margin-left: 140px;
+}
+
+/* フォーム共通 */
+.attendance-edit-form {
+    padding: 0;
+}
+
 .form-group {
-    margin-bottom: 25px;
+    display: flex;
+    align-items: center;
+    padding: auto 0;
+    border-bottom: 1px solid #eee;
+    font-size: 14px;
 }
 
 .form-label {
-    display: block;
-    font-weight: 600;
-    color: #555;
-    margin-bottom: 8px;
-    font-size: 1.1em;
+    min-width: 80px;
+    font-weight: bold;
+    color: #666;
+    margin-right: 20px;
 }
 
-.form-input,
+.form-label__time {
+    min-width: 80px;
+    padding: 15px 20px;
+    font-weight: bold;
+    color: #666;
+    margin-right: 90px;
+}
+
+
+
+/* 入力フィールド共通 */
 input[type="time"],
 textarea {
-    width: calc(100% - 20px);
-    /* 左右のパディング分を引く */
-    padding: 10px;
+    margin-left: 40px;
+    padding: 6px 10px;
+    font-size: 14px;
     border: 1px solid #ccc;
-    border-radius: 8px;
-    font-size: 1em;
+    border-radius: 5px;
+    width: 100px;
     box-sizing: border-box;
-    /* パディングとボーダーを幅に含める */
-    transition: border-color 0.3s ease, box-shadow 0.3s ease;
 }
 
+/* 入力フィールド共通 */
 input[type="time"] {
-    width: 150px;
-    /* 時間入力フィールドの幅を調整 */
-    display: inline-block;
+    width: 80px;
+    padding: 6px 10px;
+    text-align: center;
+    border: 1px solid #E1E1E1;
+    border-radius: 4px;
+    font-size: 14px;
+    background-color: #fff;
+    position: relative;
+    z-index: 2;
+    box-sizing: border-box;
 }
 
-.mx-2 {
-    margin: 0 8px;
-    /* 「〜」の左右の余白 */
+input[type="time"]::-webkit-inner-spin-button,
+input[type="time"]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
 }
+
+input[type="time"]::-webkit-calendar-picker-indicator {
+    position: absolute;
+    opacity: 0;
+    /* 透明にして見えなくする */
+    pointer-events: auto;
+    /* クリック可能にする */
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+}
+
+#check_in_time,
+#check_out_time,
+.break-item input
+ {
+    font-weight: 600;
+}
+
+#check_in_time {
+    margin-right: 10px;
+}
+
+#check_out_time {
+    margin-left: 30px;
+}
+
 
 textarea {
+    width: 300px;
     resize: vertical;
-    /* 垂直方向のみリサイズ可能 */
-    min-height: 80px;
+    height: 60px;
+    margin-top: 8px;
 }
 
-.form-input:focus,
-input[type="time"]:focus,
-textarea:focus {
-    border-color: #007bff;
-    box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25);
-    outline: none;
+/* 時間区切り 〜 */
+.mx-2 {
+    margin-left: 40px;
 }
 
-.form-input--error {
-    border-color: #dc3545;
-}
-
-/* 休憩時間コンテナ */
+/* 休憩項目 */
 .breaks-container {
-    border: 1px solid #e0e0e0;
-    border-radius: 8px;
-    padding: 15px;
-    background-color: #f9f9f9;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    width: 100%;
 }
 
 .break-item {
     display: flex;
     align-items: center;
-    margin-bottom: 10px;
+    gap: 10px;
+    margin-top: 6px;
+    border-bottom: 1px solid #eee;
+    font-weight: 600;
 }
 
-.break-item:last-of-type {
-    margin-bottom: 0;
-}
-
-.break-item .break-label {
-    flex-basis: 80px;
-    /* 休憩ラベルの幅 */
-    font-weight: 500;
+.break-label {
+    width: 100px;
+    padding: 15px 25px;
+    font-weight: bold;
+    margin-right: 90px;
     color: #666;
-    margin-right: 10px;
-    font-size: 0.95em;
+}
+
+/* 備考項目 */
+
+.form-group__remarks {
+    display: flex;
+    align-items: center;
+    padding: 18px 0x;
+    font-size: 14px;
+    border-bottom: 30px;
+}
+
+.form-label__remarks {
+    padding: 15px 25px;
+    width: 90px;
+    font-weight: bold;
+    color: #666;
+}
+
+#remarks {
+    width: 280px;
+    margin-left: 150px;
+    margin-bottom: 30px;
+    margin-top: 25px;
+}
+
+/* エラーメッセージ */
+/* 各入力欄＋エラーメッセージの縦並び */
+.error-container {
+    display: flex;
+    flex-direction: column;
+}
+
+/* エラーメッセージは小さめ＆赤 */
+.error-message {
+    color: red;
+    font-size: 12px;
+    margin-top: 4px;
 }
 
 /* 修正ボタン */
 .submit-button {
     display: block;
-    width: 100%;
-    padding: 15px;
-    background-color: #007bff;
-    /* 青色 */
-    color: #ffffff;
+    background-color: #000;
+    color: #fff;
     border: none;
-    border-radius: 8px;
-    font-size: 1.2em;
-    font-weight: 600;
-    cursor: pointer;
-    transition: background-color 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
+    padding: 10px 40px;
+    font-size: 14px;
+    font-weight: bold;
+    border-radius: 6px;
+    /* この部分を修正 */
     margin-top: 30px;
-    box-shadow: 0 4px 10px rgba(0, 123, 255, 0.2);
+    margin-bottom: 40px;
+    margin-left: auto;
+    margin-right: 0;
+    cursor: pointer;
+    transition: background-color 0.3s;
 }
 
 .submit-button:hover {
-    background-color: #0056b3;
-    transform: translateY(-2px);
-    box-shadow: 0 6px 15px rgba(0, 123, 255, 0.3);
+    background-color: #333;
 }
 
 /* レスポンシブ対応 */
-@media (max-width: 768px) {
-    .container {
-        margin: 20px;
-        padding: 20px;
-    }
-
-    .page-title {
-        font-size: 1.8em;
-    }
+@media (max-width: 600px) {
 
     .info-group,
     .form-group {
@@ -229,70 +268,17 @@ textarea:focus {
         align-items: flex-start;
     }
 
-    .info-label,
-    .form-label {
-        flex-basis: auto;
-        margin-bottom: 5px;
-        margin-right: 0;
-    }
-
-    .info-value,
-    .form-input,
-    textarea {
-        width: 100%;
-        text-align: left;
+    .form-label,
+    .break-label {
+        margin-bottom: 6px;
     }
 
     input[type="time"] {
-        width: calc(50% - 10px);
-        /* 2つのタイム入力が横並びになるように調整 */
-        display: inline-block;
-    }
-
-    .break-item {
-        flex-direction: column;
-        align-items: flex-start;
         width: 100%;
-    }
-
-    .break-item .break-label {
-        flex-basis: auto;
-        margin-bottom: 5px;
-        margin-right: 0;
-    }
-
-    .break-item input[type="time"] {
-        width: calc(50% - 10px);
-    }
-}
-
-@media (max-width: 480px) {
-    .page-title {
-        font-size: 1.5em;
-    }
-
-    .container {
-        padding: 15px;
     }
 
     .submit-button {
-        font-size: 1.1em;
-        padding: 12px;
-    }
-
-    input[type="time"] {
-        width: calc(100% - 10px);
-        /* モバイルでは縦に並ぶように */
-        margin-bottom: 10px;
-    }
-
-    .mx-2 {
-        display: none;
-        /* 「〜」を非表示にする */
-    }
-
-    .break-item input[type="time"] {
-        width: calc(100% - 10px);
-        margin-bottom: 10px;
+        width: 100%;
+        text-align: center;
     }
 }

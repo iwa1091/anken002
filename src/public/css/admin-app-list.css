@@ -11,42 +11,47 @@ body {
 }
 
 .container {
-    max-width: 1200px;
+    max-width: 1000px;
     margin: 40px auto;
     padding: 20px;
-    background-color: #ffffff;
+    background-color: #f4f7f6;
     border-radius: 12px;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
 }
 
 .page-title {
-    text-align: center;
-    color: #2c3e50;
-    margin-bottom: 30px;
-    font-size: 2.2em;
-    font-weight: 700;
-    padding-bottom: 15px;
-    border-bottom: 2px solid #e0e0e0;
+    font-size: 20px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    color: #000;
+}
+
+.page-title::before {
+    content: "";
+    display: inline-block;
+    width: 4px;
+    height: 24px;
+    background-color: #000;
 }
 
 /* タブコンテナ */
 .tabs {
     display: flex;
     margin-bottom: 20px;
-    border-bottom: 2px solid #e0e0e0;
+
+    border-bottom: 1px solid #000;
 }
 
 /* タブボタン */
 .tab-button {
     flex-grow: 1; /* 利用可能なスペースを均等に埋める */
     text-align: center;
-    padding: 15px 25px;
     font-size: 1.1em;
     font-weight: 600;
     color: #555;
     background-color: transparent;
     border: none;
-    border-bottom: 3px solid transparent; /* 非アクティブ時の下線 */
     cursor: pointer;
     transition: all 0.3s ease;
     text-decoration: none; /* リンクの下線を消す */
@@ -54,14 +59,14 @@ body {
 }
 
 .tab-button:hover {
-    color: #007bff;
-    border-bottom-color: #a0d4ff;
+    color: #000;
+    border-bottom: none;
 }
 
 /* アクティブなタブボタンのスタイル */
 .tab-button.active {
-    color: #007bff;
-    border-bottom-color: #007bff; /* アクティブ時の下線 */
+    color: #000;
+    border-bottom: none;
     font-weight: 700;
 }
 
@@ -74,14 +79,9 @@ body {
 /* アクティブなタブコンテンツを表示 */
 .tab-content.active {
     display: block;
+    background-color: #fff;
 }
 
-.tab-content h3 {
-    font-size: 1.8em;
-    color: #34495e;
-    margin-bottom: 20px;
-    text-align: center;
-}
 
 .no-data {
     text-align: center;
@@ -92,20 +92,23 @@ body {
 
 /* テーブルのスタイル */
 .table-responsive {
-    overflow-x: auto;
-    margin-bottom: 20px;
     border-radius: 8px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
 }
 
 .application-table {
     width: 100%;
     border-collapse: collapse;
-    min-width: 700px; /* 小さな画面でテーブルが小さくなりすぎないように */
+ /* 小さな画面でテーブルが小さくなりすぎないように */
+}
+
+.application-table thead th,
+.application-table tbody td {
+    font-size: 14px;
+    word-break: break-word;
 }
 
 .application-table thead th {
-    background-color: #e9ecef;
+    background-color: #fff;
     color: #495057;
     padding: 15px;
     text-align: left;
@@ -115,29 +118,20 @@ body {
 
 .application-table tbody td {
     padding: 15px;
-    border-bottom: 1px solid #e9ecef;
-    vertical-align: middle;
+    border-bottom: 2px solid #e9ecef;
 }
 
-.application-table tbody tr:nth-child(even) {
-    background-color: #f8f9fa;
+/* 最後の行にある<td>要素の下線を非表示にする */
+.application-table tbody tr:last-child td {
+    border-bottom: none;
 }
+
 
 .application-table tbody tr:hover {
     background-color: #e2f0ff;
     transition: background-color 0.2s ease;
 }
 
-/* ステータス表示 */
-.status-pending {
-    color: #ffc107; /* 黄色 */
-    font-weight: 700;
-}
-
-.status-approved {
-    color: #28a745; /* 緑 */
-    font-weight: 700;
-}
 
 /* 詳細ボタン */
 .action-button.detail-button {
@@ -145,70 +139,14 @@ body {
     padding: 8px 15px;
     border-radius: 8px;
     text-decoration: none;
-    font-weight: 500;
+    font-weight: 600;
     transition: all 0.3s ease;
     text-align: center;
-    white-space: nowrap; /* ボタン内のテキストが改行されないように */
-    background-color: #007bff;
-    color: #ffffff;
-    border: 1px solid #007bff;
+
+    background-color: #fff;
+    color: #000;
 }
 
-.action-button.detail-button:hover {
-    background-color: #0056b3;
-    border-color: #0056b3;
-    transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(0, 123, 255, 0.2);
-}
-
-/* ページネーションリンク */
-.pagination-links {
-    margin-top: 20px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-
-.pagination-links nav {
-    display: flex;
-}
-
-.pagination-links .pagination {
-    display: flex;
-    list-style: none;
-    padding: 0;
-    margin: 0;
-}
-
-.pagination-links .page-item {
-    margin: 0 5px;
-}
-
-.pagination-links .page-link {
-    display: block;
-    padding: 8px 12px;
-    border: 1px solid #ddd;
-    border-radius: 5px;
-    text-decoration: none;
-    color: #007bff;
-    transition: background-color 0.3s, color 0.3s;
-}
-
-.pagination-links .page-link:hover {
-    background-color: #e9ecef;
-}
-
-.pagination-links .page-item.active .page-link {
-    background-color: #007bff;
-    color: #fff;
-    border-color: #007bff;
-}
-
-.pagination-links .page-item.disabled .page-link {
-    color: #6c757d;
-    pointer-events: none;
-    background-color: #f8f9fa;
-}
 
 
 /* アラートメッセージ */
@@ -221,12 +159,6 @@ body {
     text-align: center;
 }
 
-.alert-success {
-    color: #0f5132;
-    background-color: #d1e7dd;
-    border-color: #badbcc;
-}
-
 .alert-danger {
     color: #842029;
     background-color: #f8d7da;
@@ -234,82 +166,92 @@ body {
 }
 
 
-/* レスポンシブ対応 */
-@media (max-width: 768px) {
+/* ===== レスポンシブ調整 (768px ～ 850px) ===== */
+@media screen and (min-width: 768px) and (max-width: 850px) {
     .container {
-        margin: 20px;
-        padding: 15px;
+        max-width: 750px;
+        padding: 30px 20px;
     }
 
     .page-title {
-        font-size: 1.8em;
-        margin-bottom: 20px;
+        font-size: 22px;
     }
 
+
+    .application-table thead th,
+    .application-table tbody td {
+        padding: 12px 16px;
+        font-size: 14px;
+    }
+
+    .application-table {
+        min-width: unset;
+        /* タブレットでは縮小を許可する */
+    }
+
+    .action-button.detail-button {
+        padding: 6px 12px;
+        font-size: 14px;
+    }
+
+    .alert {
+        padding: 12px;
+        font-size: 14px;
+    }
     .tab-button {
-        padding: 10px 15px;
-        font-size: 1em;
+        flex-grow: 0;
+        /* 追加：均等に広がるのを止める */
+        flex: 1 1 auto;
+        /* またはこれで柔軟な幅に */
+        padding: 10px 12px;
+        font-size: 14px;
+        min-width: 100px;
+        /* 必要に応じて明示的に幅制限 */
+    }
+
+    .tabs {
+        max-width: 100%;
+        overflow-x: auto;
     }
 
     .application-table thead th,
     .application-table tbody td {
-        padding: 10px;
-        font-size: 0.9em;
-    }
-
-    .action-button.detail-button {
-        padding: 6px 10px;
-        font-size: 0.85em;
+        font-size: 12px;
+        max-width: 120px;
+        word-break: break-word;
     }
 }
 
-@media (max-width: 480px) {
+/* ===== レスポンシブ調整 (1400px ～ 1540px) ===== */
+@media screen and (min-width: 1400px) and (max-width: 1540px) {
+    .container {
+        max-width: 1024px;
+        padding: 60px 40px;
+    }
+
+    .month-nav {
+        gap: 40px;
+    }
+
+    .attendance-table th,
+    .attendance-table td {
+        padding: 16px 24px;
+        font-size: 15px;
+    }
+
     .page-title {
-        font-size: 1.5em;
+        font-size: 22px;
     }
 
-    .tabs {
-        flex-direction: column;
-        align-items: stretch;
-        border-bottom: none; /* モバイルでは下線を消す */
+    .month-icon {
+        width: 20px;
+        height: 20px;
     }
 
-    .tab-button {
-        width: 100%;
-        border-bottom: none; /* モバイルでは下線を消す */
-        border-radius: 8px;
-        margin-bottom: 5px;
-    }
-
-    .tab-button.active {
-        border-bottom: none;
-        background-color: #e0f0ff; /* アクティブなタブの背景色 */
-    }
-
-    .application-table {
-        min-width: unset; /* モバイルではmin-widthをリセット */
-    }
-
-    .application-table thead {
-        display: none; /* ヘッダーを非表示にすることも検討 */
-    }
-
+    .application-table thead th,
     .application-table tbody td {
-        display: block;
-        width: 100%;
-        box-sizing: border-box;
-        text-align: right;
-        padding-left: 50%; /* ラベル用のスペース */
-        position: relative;
-    }
-
-    .application-table tbody td::before {
-        content: attr(data-label);
-        position: absolute;
-        left: 10px;
-        width: 45%;
-        text-align: left;
-        font-weight: 600;
-        color: #555;
+        font-size: 12px;
+        max-width: 120px;
+        word-break: break-word;
     }
 }

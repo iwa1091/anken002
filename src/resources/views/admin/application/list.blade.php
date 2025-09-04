@@ -31,7 +31,6 @@
 
     {{-- タブコンテンツのactiveクラスを動的に設定 --}}
     <div id="pending" class="tab-content {{ $activeTab === 'pending' ? 'active' : '' }}">
-        <h3>承認待ちの申請</h3>
         <div class="table-responsive">
             <table class="application-table">
                 <thead>
@@ -74,7 +73,6 @@
     </div>
 
     <div id="approved" class="tab-content {{ $activeTab === 'approved' ? 'active' : '' }}">
-        <h3>承認済みの申請</h3>
         <div class="table-responsive">
             <table class="application-table">
                 <thead>
@@ -114,13 +112,6 @@
                 </tbody>
             </table>
         </div>
-    </div>
-
-    {{-- ページネーションリンク --}}
-    {{-- コントローラから渡される $correctionRequests がページネーションされていることを想定 --}}
-    <div class="pagination-links">
-        {{-- ページネーションリンクにも現在のタブ状態を維持するようパラメータを追加 --}}
-        {{ $correctionRequests->appends(['tab' => $activeTab])->links() }}
     </div>
 </div>
 @endsection

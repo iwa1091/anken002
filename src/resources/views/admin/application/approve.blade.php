@@ -1,6 +1,6 @@
-@extends('layouts.admin-app') {{-- 管理者用の共通レイアウトを継承 --}}
+@extends('layouts.admin-app')
 
-@section('title', '勤怠詳細') {{-- ページタイトルを「勤怠詳細」に設定 --}}
+@section('title', '勤怠詳細')
 
 @section('css')
     {{-- カスタムCSSファイルを読み込み --}}
@@ -8,92 +8,94 @@
 @endsection
 
 @section('content')
-<div class="container">
-    <h2 class="page-title">勤怠詳細</h2> {{-- ページタイトルを「勤怠詳細」に設定 --}}
+<div class="background-container">
+    <div class="detail-container">
+        <h2>勤怠詳細</h2>
 
-    {{-- Success/Error messages --}}
-    @if (session('success'))
-        <div class="alert alert-success">
-            {{ session('success') }}
-        </div>
-    @endif
-    @if (session('error'))
-        <div class="alert alert-danger">
-            {{ session('error') }}
-        </div>
-    @endif
+        @if (!isset($correctionRequest) || !$correctionRequest)
+            <p class="no-data">指定された修正申請が見つかりませんでした。</p>
+        @else
+            <div class="background-white-section">
+                {{-- 名前 --}}
+                <div class="grid-row">
+                    <span class="grid-label">名前</span>
+                    <span class="grid-name">{{ $correctionRequest->user->name ?? 'N/A' }}</span>
 
-    @if (!isset($correctionRequest) || !$correctionRequest)
-        <p class="no-data">指定された修正申請が見つかりませんでした。</p>
-    @else
-        <div class="approval-details">
-            <div class="detail-section user-info">
-                <div class="info-group">
-                    <span class="info-label">名前</span>
-                    <span class="info-value">{{ $correctionRequest->user->name ?? 'N/A' }}</span>
                 </div>
-                <div class="info-group">
-                    <span class="info-label">日付</span>
-                    <span class="info-value">
+
+                {{-- 日付 --}}
+                <div class="grid-row">
+                    <span class="grid-label">日付</span>
+                    <span class="grid-date">
                         <span class="date-year">{{ $correctionRequest->formatted_attendance_year }}</span>
                         <span class="date-month-day">{{ $correctionRequest->formatted_attendance_month_day }}</span>
                     </span>
                 </div>
-                {{-- 修正希望データの内容をここに統合 --}}
-                <div class="info-group">
-                    <span class="info-label">出勤・退勤</span>
-                    <span class="info-value">
-                        {{ $correctionRequest->formatted_requested_check_in_time }} 〜 {{ $correctionRequest->formatted_requested_check_out_time }}
+
+                {{-- 出勤・退勤 --}}
+                <div class="grid-row">
+                    <span class="grid-label">出勤・退勤</span>
+                    <span class="grid-value">
+                        {{ $correctionRequest->formatted_requested_check_in_time }}<span class="mx-2">~</span>{{ $correctionRequest->formatted_requested_check_out_time }}
                     </span>
+                    <div></div>
                 </div>
-                <div class="info-group">
-                    {{-- ★修正: 空のinfo-labelを削除しました。CSSでマージンを調整します。 ★ --}}
-                    <div class="info-breaks-display">
-                        @php
-                            $requestedBreaks = is_array($correctionRequest->requested_breaks) ? $correctionRequest->requested_breaks : [];
-                        @endphp
-                        @forelse ($requestedBreaks as $index => $break)
-                            <div class="break-item-display">
-                                <span class="break-label">
-                                    @if ($index === 0)
-                                        休憩
-                                    @else
-                                        休憩{{ $index + 1 }}
-                                    @endif
-                                </span>
-                                <span class="info-value">{{ $break['start'] ?? '00:00' }} 〜 {{ $break['end'] ?? '00:00' }}</span>
-                            </div>
-                        @empty
-                            <div class="break-item-display">
-                                <span class="break-label">休憩</span>
-                                <span class="info-value">00:00 〜 00:00</span>
-                            </div>
-                        @endforelse
-                    </div>
+
+                {{-- 休憩時間 --}}
+                <div class="info-breaks-display">
+                    @php
+                        $requestedBreaks = is_array($correctionRequest->requested_breaks) ? $correctionRequest->requested_breaks : [];
+                    @endphp
+                    @forelse ($requestedBreaks as $index => $break)
+                        <div class="grid-row break-item-display">
+                            <span class="grid-label">
+                                @if ($index === 0)
+                                    休憩
+                                @else
+                                    休憩{{ $index + 1 }}
+                                @endif
+                            </span>
+                            <span class="grid-value">
+                                @if (!empty($break['start']) && !empty($break['end']))
+                                    {{ $break['start'] }}<span class="mx-2">~</span>{{ $break['end'] }}
+                                @else
+                                    {{ $break['start'] ?? ' ' }}{{ $break['end'] ?? ' ' }}
+                                @endif
+                            </span>
+                            <div></div>
+                        </div>
+                    @empty
+                        <div class="grid-row break-item-display">
+                            <span class="grid-label">休憩</span>
+                            <span class="grid-value">" "<span class="mx-2">~</span>" "</span>
+                            <div></div>
+                        </div>
+                    @endforelse
                 </div>
-                <div class="info-group">
-                    <span class="info-label">修正理由</span>
-                    <span class="info-value">{{ $correctionRequest->reason ?? 'なし' }}</span>
+
+                {{-- 備考 --}}
+                <div class="grid-remarks">
+                    <span class="grid-label">備考</span>
+                    <span class="grid-value__remarks">{{ $correctionRequest->reason ?? 'なし' }}</span>
+                    <div></div>
                 </div>
             </div>
 
-            {{-- 承認/却下フォーム (FN051) --}}
+            {{-- 承認/却下フォーム --}}
             @if ($correctionRequest->status === 'pending')
-                <form action="{{ route('admin.stamp_correction_request.approve', $correctionRequest->id) }}" method="POST" class="approval-form">
-                    @csrf
-
-                    @error('status')
-                        <p class="error-message">{{ $message }}</p>
-                    @enderror
-
-                    <div class="button-group">
+                <div class="submit-button">
+                    <form action="{{ route('admin.stamp_correction_request.approve', $correctionRequest->id) }}" method="POST" class="approval-form">
+                        @csrf
+                        @error('status')
+                            <p class="error-message">{{ $message }}</p>
+                        @enderror
                         <button type="submit" name="status" value="approved" class="approve-button">承認</button>
-                    </div>
-                </form>
+                    </form>
+                </div>
             @else
-                <p class="status-message">{{ $correctionRequest->status === 'approved' ? '承認済み' : '却下済み' }}</p>
+                <p class="status-message pending-message">{{ $correctionRequest->status === 'approved' ? '承認済み' : '却下済み' }}</p>
             @endif
-        </div>
-    @endif
+        @endif
+    </div>
 </div>
 @endsection

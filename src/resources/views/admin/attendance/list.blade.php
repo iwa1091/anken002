@@ -10,7 +10,7 @@
 @section('content')
     <div class="container">
         {{-- 勤怠一覧のタイトルを「YYYY年M月D日の勤怠」形式で表示 --}}
-        <h2 class="page-title">{{ $currentMonth->format('Y年m月d日') }} の勤怠</h2>
+        <h2 class="page-title">{{ $currentMonth->format('Y年n月j日') }} の勤怠</h2>
 
         {{-- 日移動ナビゲーション --}}
         {{-- コントローラから $currentMonth, $prevDay, $nextDay のCarbonインスタンスが渡されることを想定 --}}
