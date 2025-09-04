@@ -33,7 +33,7 @@ LaravelアプリケーションをDocker環境で起動するために、以下�
 まず、リポジトリをローカルにクローンし、プロジェクトのルートディレクトリに移動します。
 
 ```bash
-git clone <あなたのリポジトリのURL> anken02
+git clone https://github.com/iwa1091/anken002.git anken02
 cd anken02/ # プロジェクトのルートディレクトリ（docker-compose.ymlがある場所）に移動
 ```
 
