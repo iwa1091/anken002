@@ -50,10 +50,10 @@ class UserAttendanceTest extends TestCase
         $response = $this->get('/attendance');
         $response->assertStatus(200);
 
-        $expectedDate = $now->format('Y年m月d日');
+        $expectedDateWithDayOfWeek = $now->isoFormat('Y年M月D日(ddd)');
         $expectedTime = $now->format('H:i');
 
-        $response->assertSee($expectedDate);
+        $response->assertSee($expectedDateWithDayOfWeek);
         $response->assertSee($expectedTime);
     }
 
@@ -77,7 +77,6 @@ class UserAttendanceTest extends TestCase
         $response->assertDontSee('退勤');
         $response->assertDontSee('休憩入');
     }
-    
 
     /**
      * ステータスが「出勤中」のとき、画面に正しく表示されることをテストします。
@@ -119,7 +118,6 @@ class UserAttendanceTest extends TestCase
             'user_id' => $user->id,
             'date' => Carbon::today()->format('Y-m-d'),
             'check_in_time' => Carbon::now()->subHours(2)->format('Y-m-d H:i:s'),
-            'check_out_time' => null,
         ]);
         
         BreakTime::factory()->create([
@@ -370,9 +368,8 @@ class UserAttendanceTest extends TestCase
         ]);
     }
 
-    
-     /**
-     * ユーザーが出勤打刻を行い、退勤の表示と勤怠一覧画面でその出勤時刻を確認できることをテストします。
+    /**
+     * ユーザーが出勤打刻を行い、勤怠一覧画面でその出勤時刻を確認できることをテストします。
      * @test
      */
     public function test_user_can_checkin_and_view_their_attendance_list(): void
@@ -399,7 +396,7 @@ class UserAttendanceTest extends TestCase
 
         // 画面に出勤時刻が表示されているか確認
         // 日付と時刻を、アプリケーションの出力と一致するよう修正
-        $response->assertSee('08/23（土）'); 
+        $response->assertSee($now->isoFormat('MM/DD（ddd）')); 
         $response->assertSee('09:00'); 
     }
 }

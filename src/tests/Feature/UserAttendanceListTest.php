@@ -420,7 +420,7 @@ class UserAttendanceListTest extends TestCase
 
         // 新しいエラーメッセージがJSONレスポンスに含まれていることを確認
         $response->assertJsonFragment([
-            '退勤時間は出勤時間以降の時刻を入力してください。'
+            '出勤時間もしくは退勤時間が不適切な値です'
         ]);
     }
     /**

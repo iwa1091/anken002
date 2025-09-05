@@ -20,7 +20,7 @@
         <div class="date-display">
             {{-- FN018: 現在の日時情報取得機能 --}}
             {{-- 現在の日付を表示（例: 2025年07月01日） --}}
-            <p class="current-date">{{ $currentDate->format('Y年m月d日') }}</p>
+            <p class="current-date">{{ $currentDate->isoFormat('Y年M月D日(ddd)') }}</p>
             {{-- 現在の日本時間を表示（例: 08:00） --}}
             <p class="current-time">{{ $currentTime->format('H:i') }}</p>
         </div>

@@ -39,6 +39,8 @@ class AdminAttendanceTest extends TestCase
             'role_id' => Role::where('name', 'staff')->first()->id,
             'name' => 'テストスタッフ'
         ]);
+        // 一般ユーザーを作成し、プロパティに代入
+        $this->generalUser = User::factory()->create();
     }
 
     /**

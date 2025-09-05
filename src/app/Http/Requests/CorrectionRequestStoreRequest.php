@@ -116,7 +116,7 @@ class CorrectionRequestStoreRequest extends FormRequest
             
             'requested_check_out_time.string' => ':attributeは文字列で入力してください。',
             'requested_check_out_time.date_format' => ':attributeはHH:MM形式で入力してください。',
-            'requested_check_out_time.after_or_equal' => '退勤時間は出勤時間以降の時刻を入力してください。',
+            'requested_check_out_time.after_or_equal' => '出勤時間もしくは退勤時間が不適切な値です',
 
             'requested_breaks.array' => ':attributeは配列で入力してください。',
 

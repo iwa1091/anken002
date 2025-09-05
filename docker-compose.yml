@@ -40,6 +40,7 @@ services:
       MAIL_USERNAME: null
       MAIL_PASSWORD: null
       MAIL_ENCRYPTION: null
+      APP_LOCALE: ja
     depends_on: # 依存関係を明示
       mysql:
         condition: service_healthy # mysqlサービスがhealthyになるまで待つ

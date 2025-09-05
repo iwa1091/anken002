@@ -89,6 +89,7 @@ class AttendanceController extends Controller
      */
     public function update(AdminAttendanceUpdateRequest $request, $id) // ★修正: Request $request を AdminAttendanceUpdateRequest $request に変更 ★
     {
+       
         $attendance = Attendance::with('breakTimes')->findOrFail($id); // breakTimesもロードしておく
 
         // バリデーションはAdminAttendanceUpdateRequestによって自動的に行われるため、ここでは不要
@@ -96,6 +97,8 @@ class AttendanceController extends Controller
 
         DB::beginTransaction(); // トランザクション開始
         try {
+
+
             // 勤怠の日付を取得（check_in_timeから日付部分を取得するのが安全）
             $attendanceDate = $attendance->date->toDateString();
 

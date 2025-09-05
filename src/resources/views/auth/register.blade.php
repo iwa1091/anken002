@@ -18,7 +18,7 @@
             <h2 class="register__title">会員登録</h2>
         </div>
         {{-- register.css の .register__form クラスを適用 --}}
-        <form method="POST" action="{{ route('register') }}" novalidate class="register__form">
+        <form method="POST" action="{{ route('register') }}" novalidate class="register__form" novalidate>
             @csrf
 
             <!-- 名前入力欄 -->
@@ -71,6 +71,10 @@
                 {{-- register.css の .register__input クラスを適用 --}}
                 <input id="password_confirmation" type="password" name="password_confirmation" required autocomplete="new-password"
                        class="register__input">
+                @error('password')
+                    {{-- register.css の .register__error クラスを適用 --}}
+                    <p class="register__error">{{ $message }}</p>
+                @enderror
             </div>
 
             <!-- 登録ボタン -->

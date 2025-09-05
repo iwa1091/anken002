@@ -20,7 +20,6 @@
                 <div class="grid-row">
                     <span class="grid-label">名前</span>
                     <span class="grid-name">{{ $correctionRequest->user->name ?? 'N/A' }}</span>
-
                 </div>
 
                 {{-- 日付 --}}
@@ -47,27 +46,30 @@
                         $requestedBreaks = is_array($correctionRequest->requested_breaks) ? $correctionRequest->requested_breaks : [];
                     @endphp
                     @forelse ($requestedBreaks as $index => $break)
-                        <div class="grid-row break-item-display">
-                            <span class="grid-label">
-                                @if ($index === 0)
-                                    休憩
-                                @else
-                                    休憩{{ $index + 1 }}
-                                @endif
-                            </span>
-                            <span class="grid-value">
-                                @if (!empty($break['start']) && !empty($break['end']))
-                                    {{ $break['start'] }}<span class="mx-2">~</span>{{ $break['end'] }}
-                                @else
-                                    {{ $break['start'] ?? ' ' }}{{ $break['end'] ?? ' ' }}
-                                @endif
-                            </span>
-                            <div></div>
-                        </div>
+                        {{-- 休憩時間データがある場合のみ表示 --}}
+                        @if (!empty($break['start']) || !empty($break['end']))
+                            <div class="grid-row break-item-display">
+                                <span class="grid-label">
+                                    @if ($index === 0)
+                                        休憩
+                                    @else
+                                        休憩{{ $index + 1 }}
+                                    @endif
+                                </span>
+                                <span class="grid-value">
+                                    {{ $break['start'] ?? '' }}
+                                    @if (!empty($break['start']) && !empty($break['end']))
+                                        <span class="mx-2">~</span>
+                                    @endif
+                                    {{ $break['end'] ?? '' }}
+                                </span>
+                                <div></div>
+                            </div>
+                        @endif
                     @empty
                         <div class="grid-row break-item-display">
                             <span class="grid-label">休憩</span>
-                            <span class="grid-value">" "<span class="mx-2">~</span>" "</span>
+                            <span class="grid-value">なし</span>
                             <div></div>
                         </div>
                     @endforelse
