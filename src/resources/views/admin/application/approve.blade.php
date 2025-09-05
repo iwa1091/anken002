@@ -43,7 +43,10 @@
                 {{-- 休憩時間 --}}
                 <div class="info-breaks-display">
                     @php
-                        $requestedBreaks = json_decode($correctionRequest->requested_breaks, true) ?? [];
+                        // すでに配列ならそのまま使う。もし文字列なら decode する。
+                        $requestedBreaks = is_string($correctionRequest->requested_breaks)
+                            ? json_decode($correctionRequest->requested_breaks, true)
+                            : ($correctionRequest->requested_breaks ?? []);
                     @endphp
 
 
