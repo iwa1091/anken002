@@ -43,29 +43,28 @@
                 {{-- 休憩時間 --}}
                 <div class="info-breaks-display">
                     @php
-                        $requestedBreaks = is_array($correctionRequest->requested_breaks) ? $correctionRequest->requested_breaks : [];
+                        $requestedBreaks = json_decode($correctionRequest->requested_breaks, true) ?? [];
                     @endphp
+
+
                     @forelse ($requestedBreaks as $index => $break)
-                        {{-- 休憩時間データがある場合のみ表示 --}}
-                        @if (!empty($break['start']) || !empty($break['end']))
-                            <div class="grid-row break-item-display">
-                                <span class="grid-label">
-                                    @if ($index === 0)
-                                        休憩
-                                    @else
-                                        休憩{{ $index + 1 }}
-                                    @endif
-                                </span>
-                                <span class="grid-value">
-                                    {{ $break['start'] ?? '' }}
-                                    @if (!empty($break['start']) && !empty($break['end']))
-                                        <span class="mx-2">~</span>
-                                    @endif
-                                    {{ $break['end'] ?? '' }}
-                                </span>
-                                <div></div>
-                            </div>
-                        @endif
+                        <div class="grid-row break-item-display">
+                            <span class="grid-label">
+                                @if ($index === 0)
+                                    休憩
+                                @else
+                                    休憩{{ $index + 1 }}
+                                @endif
+                            </span>
+                            <span class="grid-value">
+                                {{ $break['start'] ?? '' }}
+                                @if (!empty($break['start']) && !empty($break['end']))
+                                    <span class="mx-2">~</span>
+                                @endif
+                                {{ $break['end'] ?? '' }}
+                            </span>
+                            <div></div>
+                        </div>
                     @empty
                         <div class="grid-row break-item-display">
                             <span class="grid-label">休憩</span>
