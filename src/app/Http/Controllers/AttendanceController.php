@@ -357,43 +357,5 @@ class AttendanceController extends Controller
         return view('attendance.detail', compact('attendance'));
     }
 
-    // /**
-    //  * Handle the correction request for a specific attendance record.
-    //  * 特定の勤怠レコードに対する修正申請を処理します。
-    //  *
-    //  * @param  \App\Http\Requests\CorrectionRequestStoreRequest  $request
-    //  * @param  int  $id  修正対象の勤怠ID
-    //  * @return \Illuminate\Http\RedirectResponse
-    //  */
-    // public function requestCorrection(CorrectionRequestStoreRequest $request, int $id)
-    // {
-    //     $user = Auth::user();
 
-    //     // 修正対象の勤怠レコードをユーザーIDで確認して取得
-    //     // 関連する休憩時間と修正申請もEager Load
-    //     $attendance = Attendance::where('id', $id)
-    //         ->where('user_id', $user->id)
-    //         ->firstOrFail();
-
-    //     DB::beginTransaction();
-    //     try {
-    //         // 修正申請レコードを作成 (FN030-1, FN030-2)
-    //         CorrectionRequest::create([
-    //             'attendance_id' => $attendance->id,
-    //             'user_id' => $user->id,
-    //             'type' => $request->type,
-    //             'requested_check_in_time' => $request->requested_check_in_time ? Carbon::parse($attendance->date->toDateString() . ' ' . $request->requested_check_in_time) : null,
-    //             'requested_check_out_time' => $request->requested_check_out_time ? Carbon::parse($attendance->date->toDateString() . ' ' . $request->requested_check_out_time) : null,
-    //             'requested_breaks' => $request->requested_breaks ?? [], // 配列で受け取り、モデルのキャストでJSON保存
-    //             'reason' => $request->reason,
-    //             'status' => 'pending', // デフォルトは承認待ち
-    //         ]);
-
-    //         DB::commit();
-    //         return redirect()->back()->with('success', '修正申請が送信されました。');
-    //     } catch (\Exception $e) {
-    //         DB::rollBack();
-    //         return redirect()->back()->with('error', '修正申請の送信に失敗しました。' . $e->getMessage());
-    //     }
-    // }
 }

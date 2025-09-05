@@ -40,16 +40,7 @@ class AuthenticatedSessionController extends Controller
         // 認証成功後の処理
         $request->session()->regenerate();
 
-        // 認証成功直後の状態をログに出力 (デバッグログを削除)
-        // if (Auth::guard('admin')->check()) {
-        //     $user = Auth::guard('admin')->user();
-        //     Log::info('DEBUG: Admin authenticated successfully. User ID: ' . $user->id . ', Email: ' . $user->email);
-        //     Log::info('DEBUG: User is admin (via isAdmin() method): ' . ($user->isAdmin() ? 'true' : 'false'));
-        // } else {
-        //     Log::warning('DEBUG: Admin authentication failed or guard check returned false after authenticate().');
-        // }
-
-        // ログイン成功後の管理者勤怠一覧へのリダイレクト
+      
         return redirect()->intended(route('admin.attendance.list'));
     }
 
